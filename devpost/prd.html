@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper to QR PRD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf6ef;
+    --paper: #fffdf9;
+    --ink: #1c1a17;
+    --ink-soft: #625b51;
+    --line: #e4dccd;
+    --muted-bg: #f1ebe0;
+    --accent: #c8432b;
+    --accent-soft: #f8e1da;
+    --accent-ink: #ffffff;
+    --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  :root[data-accent="olive"] { --accent: #5e6b2f; --accent-soft: #e7ead6; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161513; --paper: #1f1d1a; --ink: #f1ece3; --ink-soft: #aaa293;
+      --line: #36322c; --muted-bg: #282521; --accent: #ec6a50; --accent-soft: #3b211b; --accent-ink: #1a0f0c;
+    }
+    :root:not([data-theme="light"])[data-accent="olive"] { --accent: #a9b86a; --accent-soft: #2b2f1c; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161513; --paper: #1f1d1a; --ink: #f1ece3; --ink-soft: #aaa293;
+    --line: #36322c; --muted-bg: #282521; --accent: #ec6a50; --accent-soft: #3b211b; --accent-ink: #1a0f0c;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 48px 16px 80px; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(2.2rem, 7vw, 3.4rem); line-height: 1.05; margin: 10px 0 14px; }
+  h2 { font-size: 1.6rem; margin: 0 0 14px; }
+  h3 { font-size: 1.15rem; margin: 0 0 8px; }
+  p { margin: 0 0 12px; }
+  section { margin-top: 56px; }
+  code { font: 0.88em ui-monospace, Menlo, monospace; background: var(--muted-bg); padding: 1px 5px; border-radius: 4px; }
+  a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+
+  .eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .badge { border: 1px solid var(--accent); color: var(--accent); padding: 4px 9px; border-radius: 999px; }
+  .lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 660px; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+
+  /* Scope -> PRD */
+  .expand { display: grid; gap: 10px; }
+  .expand .row { display: grid; grid-template-columns: 1fr 24px 1.4fr; gap: 12px; align-items: start; }
+  .expand .was { color: var(--ink-soft); font-size: .95rem; }
+  .expand .arrow { color: var(--accent); font-weight: 600; text-align: center; }
+  .expand .now { font-weight: 500; }
+
+  /* Journey diagram */
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .n rect { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
+  .n.key rect { fill: var(--accent-soft); stroke: var(--accent); }
+  .n text { fill: var(--ink); font: 600 14px var(--sans); }
+  .n text.s { fill: var(--ink-soft); font-weight: 400; font-size: 12px; }
+  .lane { fill: var(--ink-soft); font: 600 11px var(--sans); letter-spacing: .1em; }
+  .e { stroke: var(--ink-soft); stroke-width: 1.5; fill: none; }
+  .e.loop { stroke: var(--accent); stroke-dasharray: 5 4; }
+  .ah { fill: var(--ink-soft); }
+  .ah.loop { fill: var(--accent); }
+  .el { fill: var(--ink-soft); font: 12px var(--sans); }
+  .el.loop { fill: var(--accent); }
+
+  /* Screen stepper */
+  .stepper { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .stepper button {
+    font: 500 14px var(--sans); color: var(--ink); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  }
+  .stepper button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .stepper button .num { color: var(--accent); margin-right: 6px; font-weight: 600; }
+  .stepper button[aria-selected="true"] .num { color: inherit; opacity: .7; }
+  .panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .panel + .panel { margin-top: 20px; }
+  .js .panel[hidden] { display: none; }
+  .panel h3 { margin-top: 0; }
+  .panel ul { margin: 0 0 14px; padding-left: 18px; }
+  .panel li { margin-bottom: 6px; }
+  .label { font: 600 11px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin: 14px 0 6px; }
+  .label:first-child { margin-top: 0; }
+  .crit { list-style: none; padding: 0 !important; }
+  .crit li { padding-left: 24px; position: relative; }
+  .crit li::before { content: ""; position: absolute; left: 0; top: 6px; width: 12px; height: 12px; border: 1.5px solid var(--accent); border-radius: 3px; }
+  .state { background: var(--muted-bg); border-radius: 10px; padding: 10px 12px; font-size: .95rem; margin-bottom: 8px; }
+  .state strong { display: block; font-size: .85rem; }
+
+  /* Mock screens */
+  .mock { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px; font-size: 13px; align-self: start; }
+  .mock .nav { display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+  .mock .logo { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); }
+  .mock .brand { font: 600 14px var(--serif); }
+  .mock .h1 { font: 600 20px/1.15 var(--serif); text-align: center; margin: 4px 0 6px; }
+  .mock .sub { color: var(--ink-soft); text-align: center; margin-bottom: 12px; }
+  .mock .btns { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+  .mock .btn { border-radius: 8px; padding: 6px 12px; border: 1px solid var(--line); background: var(--paper); font-weight: 500; }
+  .mock .btn.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .mock .field { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; color: var(--ink-soft); margin-bottom: 8px; }
+  .mock .err { color: var(--accent); font-size: 12px; margin: -4px 0 8px; }
+  .mock .row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .mock .row .name { flex: 1; }
+  .mock .row .price { font-weight: 600; }
+  .mock .row.off { opacity: .45; }
+  .mock .row.editing .name, .mock .row.editing .price { border: 1px solid var(--accent); border-radius: 6px; padding: 2px 6px; background: var(--paper); }
+  .mock .ico { width: 14px; height: 14px; color: var(--ink-soft); flex: none; }
+  .mock .ico.ok { color: var(--accent); }
+  .mock .tog { width: 24px; height: 14px; border-radius: 999px; background: var(--accent); position: relative; flex: none; }
+  .mock .tog::after { content: ""; position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--paper); }
+  .mock .tog.off { background: var(--line); }
+  .mock .tog.off::after { right: auto; left: 2px; }
+  .mock .add { color: var(--accent); font-weight: 600; padding: 8px 0; }
+  .mock .foot { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+  .mock .qr { width: 54px; height: 54px; border-radius: 6px; background:
+      conic-gradient(from 0deg, var(--ink) 25%, transparent 0 50%, var(--ink) 0 75%, transparent 0) 0 0 / 12px 12px, var(--paper);
+      border: 4px solid var(--paper); outline: 1px solid var(--line); }
+  .mock .codebox { font: 600 14px ui-monospace, Menlo, monospace; letter-spacing: .1em; }
+  .mock .steps-run { display: grid; gap: 8px; margin: 8px 0; }
+  .mock .steps-run div { display: flex; gap: 8px; align-items: center; }
+  .mock .dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; }
+  .mock .dot.done { background: var(--accent); border-color: var(--accent); }
+  .mock .dot.cur { border-color: var(--accent); }
+  .mock .muted { color: var(--ink-soft); }
+  .mock .phone { max-width: 220px; margin: 0 auto; border: 1px solid var(--line); border-radius: 22px; padding: 18px 14px; background: var(--paper); }
+
+  /* Look and feel */
+  .lf { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .type-sample .big { font: 600 2.1rem/1.1 var(--serif); margin-bottom: 6px; }
+  .type-sample .small { color: var(--ink-soft); }
+  .swatches { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 12px; }
+  .sw { display: grid; gap: 4px; font-size: 12px; color: var(--ink-soft); }
+  .sw i { display: block; width: 56px; height: 40px; border-radius: 8px; border: 1px solid var(--line); }
+  .accent-pick { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--paper); }
+  .accent-pick button { font: 500 13px var(--sans); border: 0; background: transparent; color: var(--ink); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .accent-pick button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .avoid { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .avoid li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 14px; text-decoration: line-through; text-decoration-color: var(--accent); color: var(--ink-soft); }
+
+  /* Lists */
+  .decisions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .decisions .card { padding: 16px; }
+  .decisions strong { display: block; font-family: var(--serif); font-weight: 600; font-size: 1.02rem; margin-bottom: 4px; }
+  .decisions span { color: var(--ink-soft); font-size: .95rem; }
+  .assume { border: 1.5px dashed var(--accent); border-radius: 14px; padding: 18px 20px; background: var(--paper); }
+  .assume ul { margin: 0; padding-left: 18px; }
+  .assume li { margin-bottom: 6px; }
+
+  details { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; }
+  summary { cursor: pointer; list-style: none; padding: 16px 20px; display: flex; align-items: center; gap: 12px; font-weight: 600; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; margin-left: auto; font: 400 20px/1 var(--sans); color: var(--ink-soft); }
+  details[open] summary::after { content: "\2013"; }
+  summary .count { font-weight: 500; font-size: 13px; color: var(--ink-soft); }
+  details ul { margin: 0; padding: 0 20px 18px 40px; }
+  details li { margin-bottom: 6px; }
+
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
+
+  @media (max-width: 700px) {
+    .panel, .lf, .decisions { grid-template-columns: 1fr; }
+    .expand .row { grid-template-columns: 1fr; gap: 2px; }
+    .expand .arrow { display: none; }
+    .expand .row { padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Product requirements <span class="badge">Draft</span></div>
+    <h1>Paper to QR</h1>
+    <p class="lede">A photo of a paper or chalkboard menu becomes an editable digital menu, a code and a printable QR code. For the manager whose menu of the day changes often, and the customers who scan it at the table.</p>
+  </header>
+
+  <section>
+    <h2>What scope said, what we know now</h2>
+    <div class="card expand">
+      <div class="row"><div class="was">"The manager opens the site"</div><div class="arrow">→</div><div class="now">A Uxcel-style hero: logo, H1, subtext, and two buttons that open tabs. Existing menu is open by default.</div></div>
+      <div class="row"><div class="was">"OCR extracts the list"</div><div class="arrow">→</div><div class="now">The screen shows the current step in plain English, not a percentage that could mislead.</div></div>
+      <div class="row"><div class="was">"Edit or delete dishes"</div><div class="arrow">→</div><div class="now">The line becomes editable in place, the pencil turns into a check. Plus Add dish and an active/inactive toggle.</div></div>
+      <div class="row"><div class="was">"Add a dish? New photo?" (open)</div><div class="arrow">→</div><div class="now">Add dish is in. Re-uploading a photo is deferred.</div></div>
+      <div class="row"><div class="was">"The customer sees the menu"</div><div class="arrow">→</div><div class="now">The restaurant name and the active dishes with prices. Nothing else.</div></div>
+      <div class="row"><div class="was">Working title</div><div class="arrow">→</div><div class="now">Paper to QR.</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The core journey</h2>
+    <div class="card diagram">
+      <svg viewBox="0 0 820 330" role="img" aria-label="Home screen with two tabs. Existing menu: the code leads to the Menu screen, or to a Restaurant not found error. New restaurant: name and photos, then processing steps, then the Menu screen. The Menu screen gives a QR code that leads the customer to the restaurant page. The manager comes back with the code.">
+        <defs>
+          <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah loop" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <text class="lane" x="20" y="22">MANAGER</text>
+        <text class="lane" x="600" y="232">CUSTOMER</text>
+
+        <g class="n"><rect x="20" y="110" width="140" height="60" rx="10"/><text x="90" y="136" text-anchor="middle">Home screen</text><text class="s" x="90" y="154" text-anchor="middle">two tabs</text></g>
+
+        <g class="n"><rect x="210" y="40" width="170" height="60" rx="10"/><text x="295" y="66" text-anchor="middle">Existing menu</text><text class="s" x="295" y="84" text-anchor="middle">paste code, Validate</text></g>
+        <g class="n key"><rect x="210" y="180" width="170" height="60" rx="10"/><text x="295" y="206" text-anchor="middle">New restaurant</text><text class="s" x="295" y="224" text-anchor="middle">name + photos</text></g>
+        <g class="n key"><rect x="210" y="262" width="170" height="52" rx="10"/><text x="295" y="285" text-anchor="middle">Processing</text><text class="s" x="295" y="302" text-anchor="middle">current step shown</text></g>
+
+        <path class="e" d="M160 130 H185 V70 H208" marker-end="url(#a)"/>
+        <path class="e" d="M160 150 H185 V210 H208" marker-end="url(#a)"/>
+        <path class="e" d="M295 240 V260" marker-end="url(#a)"/>
+
+        <g class="n"><rect x="440" y="110" width="170" height="60" rx="10"/><text x="525" y="136" text-anchor="middle">Menu screen</text><text class="s" x="525" y="154" text-anchor="middle">edit · QR · code</text></g>
+        <path class="e" d="M380 70 H410 V130 H438" marker-end="url(#a)"/>
+        <path class="e" d="M380 288 H410 V150 H438" marker-end="url(#a)"/>
+        <text class="el" x="388" y="58">valid code</text>
+
+        <g class="n"><rect x="440" y="10" width="170" height="44" rx="10"/><text x="525" y="37" text-anchor="middle">"Restaurant not found"</text></g>
+        <path class="e" d="M380 60 H400 V32 H438" marker-end="url(#a)"/>
+        <text class="el" x="388" y="24">unknown</text>
+
+        <g class="n"><rect x="660" y="110" width="140" height="60" rx="10"/><text x="730" y="136" text-anchor="middle">Printed QR</text><text class="s" x="730" y="154" text-anchor="middle">downloaded</text></g>
+        <path class="e" d="M610 140 H658" marker-end="url(#a)"/>
+
+        <g class="n"><rect x="600" y="245" width="200" height="60" rx="10"/><text x="700" y="271" text-anchor="middle">/restaurant-slug</text><text class="s" x="700" y="289" text-anchor="middle">name + active dishes</text></g>
+        <path class="e" d="M730 170 V243" marker-end="url(#a)"/>
+        <text class="el" x="738" y="212">scan</text>
+
+        <path class="e loop" d="M610 120 H632 V4 H90 V108" marker-end="url(#al)"/>
+        <text class="el loop" x="140" y="16">next day: comes back with the code</text>
+      </svg>
+    </div>
+  </section>
+
+  <section id="screens">
+    <h2>Screen by screen</h2>
+    <div class="stepper" role="tablist" aria-label="Screens">
+      <button role="tab" aria-selected="true" data-p="p1"><span class="num">1</span>Home</button>
+      <button role="tab" aria-selected="false" data-p="p2"><span class="num">2</span>Processing</button>
+      <button role="tab" aria-selected="false" data-p="p3"><span class="num">3</span>Menu screen</button>
+      <button role="tab" aria-selected="false" data-p="p4"><span class="num">4</span>Customer page</button>
+    </div>
+
+    <div class="panel card" id="p1">
+      <div class="mock" aria-hidden="true">
+        <div class="nav"><div class="logo"></div><div class="brand">Paper to QR</div></div>
+        <div class="h1">Your paper menu, online in one photo</div>
+        <div class="sub">Short explanation of what the platform does.</div>
+        <div class="btns"><div class="btn on">Existing menu</div><div class="btn">New restaurant</div></div>
+        <div class="field">Your code</div>
+        <div class="err">Restaurant not found</div>
+        <div class="btn on" style="text-align:center">Validate</div>
+      </div>
+      <div>
+        <div class="label">Behavior</div>
+        <ul>
+          <li>Navbar with a small logo, no navigation links.</li>
+          <li>H1 short pitch, subtext with a few details.</li>
+          <li>Two buttons switch tabs on the same page. <strong>Existing menu</strong> is open by default.</li>
+          <li>Existing menu: code field and Validate.</li>
+          <li>New restaurant: Restaurant name at the top, upload of one or more images, submit.</li>
+        </ul>
+        <div class="label">States</div>
+        <div class="state"><strong>Unknown code</strong>Error on the form, like "Restaurant not found". Stays on the form.</div>
+        <div class="state"><strong>Missing restaurant name</strong>The name is required to submit.</div>
+        <div class="label">Proof</div>
+        <ul class="crit">
+          <li>Existing menu is the open tab on arrival.</li>
+          <li>A valid code opens the Menu screen; an unknown one shows the error.</li>
+        </ul>
+        <p class="muted" style="font-size:.85rem;color:var(--ink-soft)">The H1 in the sketch is a placeholder, not decided copy.</p>
+      </div>
+    </div>
+
+    <div class="panel card" id="p2">
+      <div class="mock" aria-hidden="true">
+        <div class="nav"><div class="logo"></div><div class="brand">Paper to QR</div></div>
+        <div class="h1" style="font-size:17px">Chez Marcel</div>
+        <div class="steps-run">
+          <div><span class="dot done"></span>Uploading photos…</div>
+          <div><span class="dot cur"></span>Reading your menu…</div>
+          <div class="muted"><span class="dot"></span>Building your menu</div>
+        </div>
+      </div>
+      <div>
+        <div class="label">Behavior</div>
+        <ul>
+          <li>After submitting New restaurant, the screen shows the step in progress in plain English.</li>
+          <li>No percentage: processing time is unknown, a bar could mislead.</li>
+        </ul>
+        <div class="label">States</div>
+        <div class="state"><strong>Nothing extracted</strong>A message asks for a better quality photo and offers to enter the menu by hand with Add dish. Code and QR are still provided.</div>
+        <div class="label">Proof</div>
+        <ul class="crit">
+          <li>The current step is visible from submit until the Menu screen appears.</li>
+          <li>A real photo of a printed or handwritten menu gives a matching list, give or take a few fixable misreadings.</li>
+        </ul>
+        <p style="font-size:.85rem;color:var(--ink-soft)">Step wording in the sketch is illustrative; the third step is not decided.</p>
+      </div>
+    </div>
+
+    <div class="panel card" id="p3">
+      <div class="mock" aria-hidden="true">
+        <div class="nav"><div class="logo"></div><div class="brand">Paper to QR</div></div>
+        <div class="h1" style="font-size:17px;text-align:left">Chez Marcel</div>
+        <div class="row"><span class="name">Quiche lorraine</span><span class="price">9.50</span>
+          <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg>
+          <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg><span class="tog"></span></div>
+        <div class="row editing"><span class="name">Boeuf bourguignon</span><span class="price">16.00</span>
+          <svg class="ico ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg>
+          <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg><span class="tog"></span></div>
+        <div class="row off"><span class="name">Tarte Tatin</span><span class="price">6.00</span>
+          <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg>
+          <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg><span class="tog off"></span></div>
+        <div class="add">+ Add dish</div>
+        <div class="foot"><div class="qr"></div><div><div class="muted">Your code</div><div class="codebox">K7Q-29P</div></div></div>
+      </div>
+      <div>
+        <div class="label">Behavior</div>
+        <ul>
+          <li>a) Restaurant name at the top, not editable (the QR URL is built from it).</li>
+          <li>b) One line per dish: name, price, pencil, x, active/inactive toggle. Add dish adds a line.</li>
+          <li>c) QR code image with a download icon.</li>
+          <li>d) The code to keep.</li>
+          <li>Same screen after a valid code or after processing.</li>
+        </ul>
+        <div class="label">Proof</div>
+        <ul class="crit">
+          <li>Pencil makes name and price editable in place; it turns into a check.</li>
+          <li>Check saves: reopening with the code shows the new value.</li>
+          <li>x removes the dish.</li>
+          <li>Inactive dish stays in this list, disappears from the customer page.</li>
+          <li>Download icon saves the QR as an image; scanning it opens the customer page.</li>
+        </ul>
+        <p style="font-size:.85rem;color:var(--ink-soft)">The code format in the sketch is illustrative; it is decided in the spec.</p>
+      </div>
+    </div>
+
+    <div class="panel card" id="p4">
+      <div class="mock" aria-hidden="true">
+        <div class="phone">
+          <div class="h1" style="font-size:18px">Chez Marcel</div>
+          <div class="row"><span class="name">Quiche lorraine</span><span class="price">9.50</span></div>
+          <div class="row"><span class="name">Boeuf bourguignon</span><span class="price">16.00</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="label">Behavior</div>
+        <ul>
+          <li>Reached by scanning the QR code: <code>/restaurant-slug</code>.</li>
+          <li>Restaurant name and active dishes with prices. Nothing else.</li>
+        </ul>
+        <div class="label">States</div>
+        <div class="state"><strong>Inactive dish</strong>Not shown (Tarte Tatin is missing here).</div>
+        <div class="state"><strong>Assumed: no active dish / unknown slug</strong>Name with "No dishes available right now" / a simple "Restaurant not found" page.</div>
+        <div class="label">Proof</div>
+        <ul class="crit">
+          <li>Only active dishes appear.</li>
+          <li>A change saved by the manager shows up after reload.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Look and feel</h2>
+    <div class="lf">
+      <div class="card type-sample">
+        <div class="label">Typography</div>
+        <div class="big">Fraunces for headings</div>
+        <div class="small">DM Sans for body text: clean and readable, so the headings can carry the warmth.</div>
+      </div>
+      <div class="card">
+        <div class="label">Colors</div>
+        <div class="swatches">
+          <div class="sw"><i style="background:var(--bg)"></i>Off-white</div>
+          <div class="sw"><i style="background:var(--ink)"></i>Near-black</div>
+          <div class="sw"><i style="background:var(--accent)"></i>Accent</div>
+        </div>
+        <div class="accent-pick" role="group" aria-label="Preview accent">
+          <button aria-pressed="true" data-accent="tomato">Tomato red</button>
+          <button aria-pressed="false" data-accent="olive">Olive green</button>
+        </div>
+        <p style="font-size:.85rem;color:var(--ink-soft);margin-top:8px">Undecided. Switch to preview the whole page with each.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <div class="label">Aim for</div>
+      <p>Simple, clean, readable, and cosy. What Uber and Instagram get right: <strong>you see what the platform offers at first glance, there isn't much text but it's understandable, there is a balance.</strong> UI in English.</p>
+      <div class="label">Avoid</div>
+      <ul class="avoid">
+        <li>emoji</li><li>em dashes</li><li>chalkboard imagery</li><li>purple AI gradients</li><li>nav links</li><li>title top, icons bottom, hamburger top left</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Product decisions</h2>
+    <div class="decisions">
+      <div class="card"><strong>Tabs, not pages</strong><span>The hero buttons open tabs; navigation links serve no purpose here.</span></div>
+      <div class="card"><strong>Existing menu by default</strong><span>The returning manager is the frequent visitor.</span></div>
+      <div class="card"><strong>One Menu screen for both paths</strong><span>Same screen after a code or after processing.</span></div>
+      <div class="card"><strong>Name is read-only</strong><span>The QR code's URL is built from it.</span></div>
+      <div class="card"><strong>Edit in place, validate with a check</strong><span>The pencil becomes a check.</span></div>
+      <div class="card"><strong>Steps, not a percentage</strong><span>Processing time is unknown; a bar could mislead.</span></div>
+      <div class="card"><strong>Add dish + active toggle</strong><span>The menu of the day changes and dishes run out. Add dish also covers "nothing extracted".</span></div>
+      <div class="card"><strong>Fraunces + DM Sans, English UI</strong><span>More distinctive than Montserrat; judges read English.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Assumptions to confirm</h2>
+    <div class="assume">
+      <ul>
+        <li>The restaurant, code and QR are created as soon as processing finishes, even with no dish found.</li>
+        <li>Deleting a dish is immediate, no confirmation.</li>
+        <li>A dish needs a name to be validated.</li>
+        <li>Two restaurants with the same name get different URLs.</li>
+        <li>The code is short and easy to copy; its format is set in the spec.</li>
+        <li>Unknown slug: "Restaurant not found" page. No active dish: name plus "No dishes available right now".</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Boundary</h2>
+    <details open>
+      <summary>What we're building <span class="count">8</span></summary>
+      <ul>
+        <li>Home screen: logo, H1, subtext, two tab buttons</li>
+        <li>Existing menu: find by code, error on unknown code</li>
+        <li>New restaurant: name, one or more photos, step-based status</li>
+        <li>Extraction of dishes and prices from the photos</li>
+        <li>Menu screen: read-only name, inline edit, delete, add, active toggle, QR download, code</li>
+        <li>Fallback when nothing is extracted: message plus manual entry</li>
+        <li>Customer page <code>/restaurant-slug</code>: name and active dishes</li>
+        <li>Deployed for the judges</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Deferred from the POC <span class="count">3</span></summary>
+      <ul>
+        <li><strong>Replacing the menu with a new photo:</strong> Add dish covers daily changes for now.</li>
+        <li><strong>Recovering a lost code:</strong> would need an email or account, against the kernel.</li>
+        <li><strong>Renaming a restaurant:</strong> would break printed QR codes.</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Later enhancements <span class="count">3</span></summary>
+      <ul>
+        <li>Customizing the customer page (colors, logo)</li>
+        <li>Categories, descriptions, allergens</li>
+        <li>Re-uploading a photo to replace or extend the menu</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Non-goals <span class="count">4</span></summary>
+      <ul>
+        <li>Accounts and authentication: the code is the only key</li>
+        <li>Storing uploaded photos</li>
+        <li>Navigation links in the navbar</li>
+        <li>Anything on the customer page beyond name and active dishes</li>
+      </ul>
+    </details>
+  </section>
+
+  <section>
+    <h2>Open questions</h2>
+    <div class="card">
+      <p><strong>Accent color:</strong> tomato red or olive green? Can wait for the spec.</p>
+      <p style="margin:0"><strong>Price display:</strong> currency symbol and format. Can wait for the spec.</p>
+    </div>
+  </section>
+
+  <footer>Visual companion to <code>devpost/prd.md</code>, which remains the source of truth. Mock screens are sketches of the described behavior, not final designs.</footer>
+</div>
+
+<script>
+  document.documentElement.classList.add('js');
+  const tabs = document.querySelectorAll('.stepper button');
+  const panels = document.querySelectorAll('.panel');
+  function show(id) {
+    tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.p === id)));
+    panels.forEach(p => { p.hidden = p.id !== id; });
+  }
+  tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.p)));
+  show('p1');
+
+  document.querySelectorAll('.accent-pick button').forEach(b => b.addEventListener('click', () => {
+    document.documentElement.dataset.accent = b.dataset.accent;
+    document.querySelectorAll('.accent-pick button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  }));
+</script>
+</body>
+</html>

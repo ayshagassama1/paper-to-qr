@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper to QR Scope</title>
+<style>
+  :root {
+    --bg: #f6f1e7;
+    --paper: #fffdf8;
+    --ink: #1f1d1a;
+    --ink-soft: #5c574f;
+    --line: #d9d0c0;
+    --chalk: #2c3a33;
+    --chalk-ink: #f2efe6;
+    --accent: #c2410c;
+    --accent-soft: #fbe5d6;
+    --ok: #3f6b4f;
+    --muted-bg: #efe8da;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171614;
+      --paper: #211f1c;
+      --ink: #efeae0;
+      --ink-soft: #a9a296;
+      --line: #3a3631;
+      --chalk: #26332c;
+      --chalk-ink: #eef0e8;
+      --accent: #f08a4b;
+      --accent-soft: #3a2518;
+      --ok: #8cc29f;
+      --muted-bg: #2a2723;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #171614; --paper: #211f1c; --ink: #efeae0; --ink-soft: #a9a296;
+    --line: #3a3631; --chalk: #26332c; --chalk-ink: #eef0e8; --accent: #f08a4b;
+    --accent-soft: #3a2518; --ok: #8cc29f; --muted-bg: #2a2723;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 16px 80px; }
+  h1, h2 { font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-weight: 600; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; margin: 8px 0 12px; }
+  h2 { font-size: 1.45rem; margin: 0 0 12px; }
+  p { margin: 0 0 12px; }
+  .eyebrow {
+    font: 600 12px/1 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft);
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .badge {
+    border: 1px solid var(--accent); color: var(--accent);
+    padding: 4px 8px; border-radius: 999px;
+  }
+  .lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 640px; }
+
+  section { margin-top: 48px; }
+
+  /* Kernel */
+  .board { background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 24px 28px; }
+  .board .kernel { font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(1.6rem, 5vw, 2.2rem); line-height: 1.2; margin: 10px 0 12px; }
+  .board p { color: var(--ink-soft); margin: 0; }
+
+  /* Diagram */
+  .diagram { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .node rect { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
+  .node.key rect { fill: var(--accent-soft); stroke: var(--accent); }
+  .node text { fill: var(--ink); font: 600 14px -apple-system, BlinkMacSystemFont, sans-serif; }
+  .node text.sub { fill: var(--ink-soft); font-weight: 400; font-size: 12px; }
+  .lane { fill: var(--ink-soft); font: 600 11px ui-monospace, Menlo, monospace; letter-spacing: .08em; }
+  .edge { stroke: var(--ink-soft); stroke-width: 1.5; fill: none; }
+  .edge.loop { stroke: var(--accent); stroke-dasharray: 5 4; }
+  .arrowhead { fill: var(--ink-soft); }
+  .arrowhead.loop { fill: var(--accent); }
+  .edge-label { fill: var(--accent); font: 12px -apple-system, sans-serif; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--ink-soft); margin-top: 10px; }
+  .legend span::before { content: ""; display: inline-block; width: 18px; height: 0; border-top: 2px solid var(--ink-soft); vertical-align: middle; margin-right: 6px; }
+  .legend span.l-loop::before { border-top: 2px dashed var(--accent); }
+  .legend span.l-key::before { width: 12px; height: 12px; border: 1.5px solid var(--accent); background: var(--accent-soft); border-radius: 3px; }
+
+  /* People */
+  .people { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .card .role { font: 600 11px ui-monospace, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .card p { color: var(--ink-soft); margin: 0; }
+
+  /* Done */
+  blockquote {
+    margin: 0 0 16px; padding: 4px 0 4px 18px; border-left: 3px solid var(--accent);
+    font-family: "Iowan Old Style", Georgia, serif; font-size: 1.15rem; font-style: italic;
+  }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 32px 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .steps li::before { content: counter(s); font: 600 13px ui-monospace, Menlo, monospace; color: var(--accent); padding-top: 2px; }
+  .steps li.wow { font-weight: 600; }
+
+  /* Boundary reveals */
+  details { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+  summary {
+    cursor: pointer; list-style: none; padding: 16px 20px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    font-weight: 600;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font: 400 20px/1 ui-monospace, Menlo, monospace; color: var(--ink-soft); }
+  details[open] summary::after { content: "–"; }
+  summary .count { font: 500 12px ui-monospace, Menlo, monospace; color: var(--ink-soft); margin-left: auto; }
+  summary .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .d-now .dot { background: var(--ok); }
+  .d-later .dot { background: var(--ink-soft); }
+  .d-cut .dot { background: var(--accent); }
+  details ul { margin: 0; padding: 0 20px 18px 40px; }
+  details li { margin-bottom: 6px; }
+  details li small { color: var(--ink-soft); }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .refs a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 3px; }
+  .note { background: var(--muted-bg); border-radius: 12px; padding: 20px; }
+  .note h2 { font-size: 1.15rem; }
+
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
+  code { font: 0.9em ui-monospace, Menlo, monospace; background: var(--muted-bg); padding: 1px 5px; border-radius: 4px; }
+
+  @media (max-width: 640px) {
+    .people, .two { grid-template-columns: 1fr; }
+    .wrap { padding-top: 32px; }
+    .board { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Scope <span class="badge">Approved</span></div>
+    <h1>Paper to QR</h1>
+    <p class="lede">A restaurant manager photographs their menu and gets an editable digital menu, a code and a printable QR code, with no typing and no account.</p>
+  </header>
+
+  <section>
+    <div class="board">
+      <div class="eyebrow">The kernel</div>
+      <div class="kernel">No typing, no account.</div>
+      <p>Retyping a whole menu into an app is friction. Here, a photo of the chalkboard is enough: the list of dishes and prices appears, and the manager can try it right away, with no hassle.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>The loop</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 800 290" role="img" aria-label="The manager uploads photos, OCR extracts an editable list, the site generates a code and a QR code. The printed QR code takes the customer to the /restaurant-slug page. The manager comes back with the code to edit the list.">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path class="arrowhead" d="M0,0 L10,5 L0,10 z"/>
+          </marker>
+          <marker id="arr-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path class="arrowhead loop" d="M0,0 L10,5 L0,10 z"/>
+          </marker>
+        </defs>
+
+        <text class="lane" x="20" y="24">MANAGER</text>
+        <text class="lane" x="20" y="196">MANAGER, LATER</text>
+        <text class="lane" x="360" y="196">CUSTOMER</text>
+
+        <g class="node key"><rect x="20" y="40" width="160" height="56" rx="10"/>
+          <text x="100" y="64" text-anchor="middle">Menu photo(s)</text>
+          <text class="sub" x="100" y="82" text-anchor="middle">chalkboard or paper</text></g>
+        <g class="node key"><rect x="215" y="40" width="160" height="56" rx="10"/>
+          <text x="295" y="64" text-anchor="middle">OCR extraction</text>
+          <text class="sub" x="295" y="82" text-anchor="middle">dishes + prices</text></g>
+        <g class="node"><rect x="410" y="40" width="160" height="56" rx="10"/>
+          <text x="490" y="64" text-anchor="middle">Editable list</text>
+          <text class="sub" x="490" y="82" text-anchor="middle">edit · delete</text></g>
+        <g class="node"><rect x="605" y="40" width="175" height="56" rx="10"/>
+          <text x="692" y="64" text-anchor="middle">Code + QR code</text>
+          <text class="sub" x="692" y="82" text-anchor="middle">downloadable QR</text></g>
+
+        <path class="edge" d="M180 68 H213" marker-end="url(#arr)"/>
+        <path class="edge" d="M375 68 H408" marker-end="url(#arr)"/>
+        <path class="edge" d="M570 68 H603" marker-end="url(#arr)"/>
+
+        <g class="node"><rect x="20" y="210" width="190" height="56" rx="10"/>
+          <text x="115" y="234" text-anchor="middle">Pastes the code</text>
+          <text class="sub" x="115" y="252" text-anchor="middle">the menu has changed</text></g>
+        <path class="edge loop" d="M115 210 V150 H490 V98" marker-end="url(#arr-loop)"/>
+        <text class="edge-label" x="230" y="142">comes back to update</text>
+
+        <g class="node"><rect x="605" y="210" width="175" height="56" rx="10"/>
+          <text x="692" y="234" text-anchor="middle">QR on the table</text>
+          <text class="sub" x="692" y="252" text-anchor="middle">scanned by phone</text></g>
+        <path class="edge" d="M692 96 V208" marker-end="url(#arr)"/>
+
+        <g class="node"><rect x="360" y="210" width="200" height="56" rx="10"/>
+          <text x="460" y="234" text-anchor="middle">/restaurant-slug</text>
+          <text class="sub" x="460" y="252" text-anchor="middle">dishes and prices, simply</text></g>
+        <path class="edge" d="M605 238 H562" marker-end="url(#arr)"/>
+      </svg>
+      <div class="legend">
+        <span class="l-key">the kernel: photo → list</span>
+        <span>first visit</span>
+        <span class="l-loop">the reason to come back</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Who it's for</h2>
+    <div class="people">
+      <div class="card">
+        <div class="role">The manager</div>
+        <h3>Restaurant, café or bistro with a menu of the day</h3>
+        <p>The menu changes often, and prices follow rising ingredient costs. Today it's written in chalk or printed, with the old price crossed out and the new one written next to it.</p>
+      </div>
+      <div class="card">
+        <div class="role">The customer</div>
+        <h3>At the table, phone in hand</h3>
+        <p>Scans the QR code and sees the list of dishes with prices. Nothing more.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What "working" means</h2>
+    <blockquote>I upload an image and get a list of dishes with their prices, with the option to edit the name/price in case the OCR misread it. And at the bottom, a downloadable QR code to print for the end customer.</blockquote>
+    <ol class="steps">
+      <li>A real menu, chalkboard or paper, is photographed.</li>
+      <li class="wow">The list of dishes and prices appears: the "oh, that's cool" moment.</li>
+      <li>Anything the OCR misread gets fixed.</li>
+      <li>The code and QR code are generated.</li>
+      <li class="wow">The QR code is scanned with a real phone and the digital menu shows up.</li>
+      <li>It's all deployed so the judges can see the site.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>The boundary</h2>
+    <details class="d-now" open>
+      <summary><span class="dot"></span>Now: the proof of concept<span class="count">7</span></summary>
+      <ul>
+        <li>Upload one or more photos, then extract dishes and prices with OCR</li>
+        <li>Editable list: change a dish's name or price, delete a dish</li>
+        <li>Generate a code and a downloadable QR code pointing to <code>/restaurant-slug</code></li>
+        <li>Returning manager: pastes the code and finds the restaurant name, dishes and QR code</li>
+        <li>Public page <code>/restaurant-slug</code>: dishes and prices</li>
+        <li>Data stored in MongoDB Atlas: restaurant name, code, QR code and menu</li>
+        <li>React + FastAPI, deployed on CloudFront + Lambda <small>(learner's choice, already used to AWS)</small></li>
+      </ul>
+    </details>
+    <details class="d-later">
+      <summary><span class="dot"></span>Later<span class="count">3</span></summary>
+      <ul>
+        <li>Add a dish by hand, or replace the menu with a new photo <small>(to settle in the PRD)</small></li>
+        <li>Customizing the customer page (colors, logo)</li>
+        <li>Categories, descriptions, allergens</li>
+      </ul>
+    </details>
+    <details class="d-cut">
+      <summary><span class="dot"></span>Cut, and why<span class="count">2</span></summary>
+      <ul>
+        <li><strong>Authentication and accounts:</strong> this is the kernel. No account, the code is enough.</li>
+        <li><strong>Storing images:</strong> photos are used only for extraction, then discarded.</li>
+      </ul>
+    </details>
+  </section>
+
+  <section class="two">
+    <div>
+      <h2>Inspiration &amp; identity</h2>
+      <p>Very simple, basic, clean. Easy to use without having to look up "how to".</p>
+      <p class="refs">References: <a href="https://www.uber.com">Uber</a> and <a href="https://www.instagram.com">Instagram</a>, for the <em>je ne sais quoi</em> that sets them apart from clean interfaces that all look alike. <a href="https://mobbin.com">Mobbin</a> as a possible source.</p>
+      <p>To be explored further in the PRD.</p>
+    </div>
+    <div>
+      <h2>Why it matters</h2>
+      <blockquote>I find this project is a simple solution to a fairly common problem.</blockquote>
+      <p>Most restaurants the learner goes to still use paper menus. The project is also a playground for learning how to get an interface from an agent that doesn't feel like AI slop.</p>
+    </div>
+  </section>
+
+  <section class="note">
+    <h2>Risk to keep in mind</h2>
+    <p>Extracting text from a handwritten chalkboard is the most uncertain part, and it's also the heart of the demo. The editable list is the safety net. The engine (classic OCR or a vision model) will be chosen in the spec.</p>
+  </section>
+
+  <footer>Visual companion to <code>devpost/scope.md</code>, which remains the source of truth.</footer>
+</div>
+</body>
+</html>

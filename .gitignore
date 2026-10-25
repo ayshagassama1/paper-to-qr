@@ -1,0 +1,14 @@
+# Personal learning context (Devpost Learn)
+/devpost/learner-profile.md
+/devpost/learning-journal.md
+
+# Local credentials
+.env
+.env.*
+!.env.example
+
+# Course material (Devpost Learn skills)
+/.claude/
+/.agents/
+/agent/
+/skills-lock.json
