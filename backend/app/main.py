@@ -6,6 +6,8 @@ from mangum import Mangum
 from app.routes import manage, menus, restaurants
 
 logging.basicConfig(level=logging.INFO)
+# On Lambda the runtime has already installed a handler, so basicConfig is a no-op there.
+logging.getLogger().setLevel(logging.INFO)
 
 app = FastAPI(title="Paper to QR")
 app.include_router(restaurants.router, prefix="/api")

@@ -318,10 +318,10 @@ paper-to-qr/
 - **Docs:** https://www.mongodb.com/docs/atlas/
 
 ### AWS (via SAM)
-- **Lambda:** Python 3.12, 512 MB, 29 s timeout.
+- **Lambda:** Python 3.12, arm64, 512 MB, 29 s timeout, logs kept 7 days.
 - **HTTP API:** a `/api/{proxy+}` route to the Lambda.
 - **S3:** a private bucket, read by CloudFront through Origin Access Control.
-- **CloudFront:**
+- **CloudFront:** pay-as-you-go, `PriceClass_100`.
   - the default behavior goes to S3, with a **CloudFront Function** that rewrites any path without a file extension to `/index.html`, so `/chez-marcel` loads the app;
   - `/api/*` goes to the HTTP API, with caching disabled and all query strings and headers (except Host) forwarded.
   - We **don't** use CloudFront custom error responses for the SPA fallback: they would also turn the API's 404 "Restaurant not found" into `index.html`.

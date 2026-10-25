@@ -39,7 +39,7 @@ Build mode: fast
   Learner check: Fix a misread dish, add one, delete one (cancel once, then confirm), and turn one inactive. Reload your customer page on the phone and check that the inactive dish is gone and the fix shows. Then come back with the code and check everything stayed.
   Commit: `Edit, add, delete and toggle dishes`
 
-- [ ] **4. The judges can open the site on AWS**
+- [x] **4. The judges can open the site on AWS**
   Becomes usable: The whole journey works on a public CloudFront address: create from a photo, edit, download the QR code, scan it, come back with the code.
   Why now: Deployment changes nothing in the product, so it comes once the product is complete. Its main risk (payload size and extraction time against the Lambda and HTTP API limits) is already measured locally in slice 1, so surprises here should be configuration, not design.
   PRD ref: `prd.md > What We're Building` (deployed so the judges can see it)
@@ -77,3 +77,5 @@ Activity mode:
 - In edit mode the x cancels the edit (or discards an unsaved new line) instead of deleting, with Escape doing the same: a delete control next to the check would make it easy to lose a dish while fixing it.
 - Uploaded photos are previewed large and uncropped before "Read my menu" (one photo full width, several in a two-column grid), instead of small thumbnails: the learner wants judges to see that the digital menu matches the paper one. Browser memory only; nothing is stored, so `scope.md > Explicitly Cut` still holds.
 - Added a one-click copy for the menu code (icon and the code itself), with a fallback for plain-http LAN addresses where the Clipboard API is missing: requested by the learner after trying the Menu screen.
+- Deployment uses an arm64 Lambda, CloudFront `PriceClass_100` (pay-as-you-go) and a 7-day log group, and the learner's AWS profile ran the deploy: she asked for minimal to zero cost. Deployed at https://d1gdupqowt3o8k.cloudfront.net (eu-west-3); a full journey with the learner's letterboard photo took 4.5 s and extracted 22 dishes, and the learner had already confirmed extraction on her own Unsplash chalkboard and letterboard photos.
+- `logging.getLogger().setLevel(logging.INFO)` added next to `basicConfig`: on Lambda the runtime installs a handler first, so the extraction timing line was missing from the logs.
