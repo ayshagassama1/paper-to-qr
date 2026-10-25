@@ -140,7 +140,7 @@ The learner's **"Pétrole"** palette (between blue and green, with an apricot to
 ### Frontend
 
 #### `HomePage` and `Hero`
-Navbar (small logo, no links), H1, subtext, and two buttons that switch shadcn `Tabs`. `Existing menu` is the default tab. After a successful lookup or creation, the page replaces the tabs area with `MenuEditor`.
+Navbar (small logo, no links), H1, subtext, and two buttons that switch shadcn `Tabs`. `Existing menu` is the default tab. After a successful lookup or creation, `MenuEditor` replaces that tab's form inside the panel; the Navbar, H1, subtext and tab buttons stay in place, and the panel widens to fit the menu. Each tab keeps its own opened menu, with a link back to its form.
 PRD ref: `prd.md > Screens and Layout > Home screen`.
 
 #### `ExistingMenuForm`

@@ -9,7 +9,7 @@ Build mode: fast
 
 ## Slices
 
-- [ ] **1. A menu photo becomes a list of dishes on screen**
+- [x] **1. A menu photo becomes a list of dishes on screen**
   Becomes usable: On the Home screen, the manager opens the New restaurant tab, enters a name, uploads one or more photos, sees "Uploading photos…" then "Reading your menu…", and lands on the Menu screen with the restaurant name, the "Menu ready" badge, the extracted dishes with prices and the code. The restaurant is saved in Atlas. The Existing menu tab is visible but only wired in slice 2.
   Why now: This is the unique kernel and the riskiest part (handwritten chalkboard, a model never tested on this). Finding out on the first slice whether Haiku 5.5 reads a real menu, and how long it takes, decides everything else. It also sets the look of the app before any other screen exists, which is the learner's learning goal.
   PRD ref: `prd.md > The Core Journey` (steps 1-4), `prd.md > Screens and Layout` (Home screen, Processing state, Menu screen a, b, d), `prd.md > Create a menu from photos`, `prd.md > States and Boundaries` (no dishes extracted), `prd.md > Look and Feel`
@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Run both dev servers, open `http://localhost:5173`, look at the Home screen, then create a restaurant with a real photo of a menu (ideally a handwritten one). Say whether the extracted list matches the photo, and whether the Home and Menu screens feel like the Uxcel reference and the "Pétrole" look you chose, or slip into anything on the avoid list.
   Commit: `Create a restaurant from menu photos with Claude extraction`
 
-- [ ] **2. The customer scans the QR code, and the manager comes back with the code**
+- [x] **2. The customer scans the QR code, and the manager comes back with the code**
   Becomes usable: The Menu screen shows the QR code with a download icon. Scanning it with a phone on the same Wi-Fi opens `/restaurant-slug` with the name and dishes. Pasting the code in the Existing menu tab opens the same Menu screen; an unknown code shows "Restaurant not found" on the form, and an unknown slug shows a "Restaurant not found" page.
   Why now: It completes the "oh, that's cool" moment (a real photo, then a real phone scan) right after the kernel works. Both behaviors are lookups on the same document (by slug and by code), so they share one slice.
   PRD ref: `prd.md > The Core Journey` (steps 6-8), `prd.md > Get the QR code and the code`, `prd.md > Find an existing menu`, `prd.md > View the menu as a customer`, `prd.md > Screens and Layout` (Menu screen c, Customer page)
@@ -71,3 +71,5 @@ Reflection:
 Activity mode:
 
 ## Revisions
+
+- The Menu screen now opens inside the home panel, in place of the form, with the hero and tab buttons kept on screen: at the first hands-on check the learner felt that replacing the whole hero looked like being sent to another page.

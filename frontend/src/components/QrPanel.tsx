@@ -20,14 +20,14 @@ export function QrPanel({ slug, code }: { slug: string; code: string }) {
   }
 
   return (
-    <aside className="h-fit rounded-2xl border border-hairline bg-surface p-6">
+    <aside className="h-fit rounded-2xl bg-background p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium">Your QR code</h2>
+        <h3 className="text-xl font-medium">Your QR code</h3>
         <Button variant="ghost" size="icon" onClick={download} aria-label="Download QR code" title="Download QR code">
           <Download className="size-5" />
         </Button>
       </div>
-      <div className="mt-3 rounded-xl bg-background p-5">
+      <div className="mt-2">
         <QRCodeCanvas
           ref={canvasRef}
           value={url}
@@ -44,8 +44,8 @@ export function QrPanel({ slug, code }: { slug: string; code: string }) {
         {url.replace(/^https?:\/\//, "")}
       </a>
 
-      <h2 className="mt-7 text-xl font-medium">Your code</h2>
-      <p className="mt-3 rounded-lg bg-background px-4 py-3 text-center text-2xl font-semibold tracking-[0.18em] text-ink tabular-nums">
+      <h3 className="mt-7 text-xl font-medium">Your code</h3>
+      <p className="mt-3 rounded-lg bg-surface px-4 py-3 text-center text-2xl font-semibold tracking-[0.18em] text-ink tabular-nums">
         {formatCode(code)}
       </p>
       <p className="mt-3 text-sm text-ink-soft">Keep this code to edit your menu.</p>
