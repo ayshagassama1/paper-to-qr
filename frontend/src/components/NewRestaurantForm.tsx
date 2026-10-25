@@ -86,13 +86,18 @@ export function NewRestaurantForm({ onCreated }: { onCreated: (menu: RestaurantP
             addPhotos(e.dataTransfer.files)
           }}
           className={cn(
-            "flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed bg-background px-6 py-8 text-center transition-colors focus-within:ring-3 focus-within:ring-ring/50",
+            "flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed bg-background px-6 text-center transition-colors focus-within:ring-3 focus-within:ring-ring/50",
+            // Once photos are in, the drop zone shrinks so the previews get the room.
+            photos.length > 0 ? "py-3" : "flex-col py-8",
+            photos.length >= MAX_PHOTOS && "hidden",
             dragging ? "border-primary" : photosMissing ? "border-destructive" : "border-input",
           )}
         >
-          <ImagePlus className="size-6 text-primary" strokeWidth={1.75} />
-          <span className="font-medium text-ink">Add photos of your menu</span>
-          <span className="text-sm text-ink-soft">Up to {MAX_PHOTOS} photos. Take them in good light, straight on.</span>
+          <ImagePlus className={cn("text-primary", photos.length > 0 ? "size-5" : "size-6")} strokeWidth={1.75} />
+          <span className="font-medium text-ink">{photos.length > 0 ? "Add another photo" : "Add photos of your menu"}</span>
+          {photos.length === 0 && (
+            <span className="text-sm text-ink-soft">Up to {MAX_PHOTOS} photos. Take them in good light, straight on.</span>
+          )}
           <input
             type="file"
             accept="image/*"
@@ -107,17 +112,25 @@ export function NewRestaurantForm({ onCreated }: { onCreated: (menu: RestaurantP
         {photosMissing && <p className="text-sm text-destructive">Add at least one photo.</p>}
 
         {photos.length > 0 && (
-          <ul className="grid grid-cols-5 gap-2 pt-2">
+          // Large, uncropped previews so the whole menu can be checked before reading it.
+          <ul className={cn("grid gap-3 pt-2", photos.length > 1 && "grid-cols-2")}>
             {previews.map((url, i) => (
-              <li key={url} className="relative aspect-square">
-                <img src={url} alt={`Menu photo ${i + 1}`} className="size-full rounded-lg object-cover" />
+              <li key={url} className="relative">
+                <img
+                  src={url}
+                  alt={`Menu photo ${i + 1}`}
+                  className={cn(
+                    "w-full rounded-xl bg-background object-contain",
+                    photos.length > 1 ? "aspect-[3/4]" : "max-h-[32rem]",
+                  )}
+                />
                 <button
                   type="button"
                   aria-label={`Remove photo ${i + 1}`}
                   onClick={() => setPhotos((current) => current.filter((_, j) => j !== i))}
-                  className="absolute -top-1.5 -right-1.5 flex size-6 items-center justify-center rounded-full bg-ink text-white"
+                  className="absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-ink/80 text-white hover:bg-ink"
                 >
-                  <X className="size-3.5" />
+                  <X className="size-4" />
                 </button>
               </li>
             ))}

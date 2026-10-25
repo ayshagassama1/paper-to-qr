@@ -69,6 +69,7 @@ Source: `scope.md > The Core Loop` (every time the menu changes).
 Source: `scope.md > The Unique Kernel`.
 - As a new manager, I want to upload photos of my menu so that I get a digital menu without typing it.
   - [ ] The New restaurant tab has a Restaurant name field at the top and an upload field that accepts one or more images.
+  - [ ] After choosing photos and before submitting, each photo is shown large enough to read the whole menu, so it can be compared with the extracted list. The preview lives in the browser only and disappears once the menu is read.
   - [ ] After submitting, the screen shows the current step in plain English (for example "Uploading photos…", then "Reading your menu…").
   - [ ] When processing finishes, the Menu screen shows the extracted dishes with their prices, the QR code and the code.
   - [ ] With a real photo of a printed or handwritten menu, the dish list on screen matches the dishes on the photo, give or take a few fixable misreadings.

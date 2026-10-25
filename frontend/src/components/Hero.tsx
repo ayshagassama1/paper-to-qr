@@ -3,7 +3,7 @@ import { TabsList, TabsTrigger } from "@/components/ui/tabs"
 // Inactive look is the base; data-active overrides shadcn's own active styles.
 const tabButton =
   "h-12 flex-none rounded-lg border border-input/60 bg-background px-6 text-[15px] font-medium text-ink transition-colors hover:bg-surface hover:text-ink " +
-  "data-active:border-primary data-active:bg-primary data-active:text-primary-foreground data-active:hover:bg-primary-hover " +
+  "data-active:border-primary data-active:bg-primary data-active:text-primary-foreground data-active:hover:bg-primary-hover data-active:hover:text-primary-foreground " +
   "group-data-[variant=default]/tabs-list:data-active:shadow-none"
 
 /** H1, subtext and the two buttons that switch the tabs below them. Must sit inside <Tabs>. */
