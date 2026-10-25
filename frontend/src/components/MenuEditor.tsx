@@ -1,6 +1,6 @@
 import { DishRow } from "@/components/DishRow"
+import { QrPanel } from "@/components/QrPanel"
 import type { RestaurantPrivate } from "@/lib/api"
-import { formatCode } from "@/lib/formatPrice"
 
 export function MenuEditor({ menu, justCreated }: { menu: RestaurantPrivate; justCreated: boolean }) {
   return (
@@ -12,7 +12,7 @@ export function MenuEditor({ menu, justCreated }: { menu: RestaurantPrivate; jus
         )}
       </header>
 
-      <div className="mt-10 grid gap-10 md:grid-cols-[minmax(0,1fr)_300px] md:gap-14">
+      <div className="mt-10 grid gap-10 md:grid-cols-[minmax(0,1fr)_320px] md:gap-14">
         <div>
           <h2 className="text-xl font-medium">Dishes</h2>
           {menu.extraction_empty && menu.dishes.length === 0 ? (
@@ -28,13 +28,7 @@ export function MenuEditor({ menu, justCreated }: { menu: RestaurantPrivate; jus
           )}
         </div>
 
-        <aside className="h-fit rounded-2xl border border-hairline bg-surface p-6">
-          <h2 className="text-xl font-medium">Your code</h2>
-          <p className="mt-3 rounded-lg bg-background px-4 py-3 text-center text-2xl font-semibold tracking-[0.18em] text-ink tabular-nums">
-            {formatCode(menu.code)}
-          </p>
-          <p className="mt-3 text-sm text-ink-soft">Keep this code to edit your menu.</p>
-        </aside>
+        <QrPanel slug={menu.slug} code={menu.code} />
       </div>
     </section>
   )

@@ -54,3 +54,46 @@ def test_photos_are_required(client):
 
 def test_more_than_five_photos_is_rejected(client):
     assert create(client, photos=6).status_code == 422
+
+
+def test_find_menu_by_code(client):
+    created = create(client).json()
+    res = client.get("/api/manage", headers={"X-Menu-Code": created["code"]})
+    assert res.status_code == 200
+    assert res.json()["name"] == "Chez Marcel"
+    assert res.json()["dishes"] == created["dishes"]
+
+
+def test_code_lookup_ignores_case_and_dash(client):
+    code = create(client).json()["code"]
+    typed = f"{code[:3]}-{code[3:]}".lower()
+    assert client.get("/api/manage", headers={"X-Menu-Code": typed}).status_code == 200
+
+
+def test_unknown_or_missing_code_is_not_found(client):
+    create(client)
+    res = client.get("/api/manage", headers={"X-Menu-Code": "AAA-AAA"})
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Restaurant not found"}
+    assert client.get("/api/manage").status_code == 404
+
+
+def test_public_menu_shows_active_dishes_only(client, collection):
+    created = create(client).json()
+    collection.update_one({"code": created["code"]}, {"$set": {"dishes.1.active": False}})
+    res = client.get("/api/menus/chez-marcel")
+    assert res.status_code == 200
+    assert res.json() == {"name": "Chez Marcel", "dishes": [{"name": "Quiche lorraine", "price_cents": 950}]}
+    assert "code" not in res.text
+
+
+def test_public_menu_with_no_active_dish(client, collection):
+    create(client)
+    collection.update_one({"slug": "chez-marcel"}, {"$set": {"dishes.0.active": False, "dishes.1.active": False}})
+    assert client.get("/api/menus/chez-marcel").json() == {"name": "Chez Marcel", "dishes": []}
+
+
+def test_unknown_slug_is_not_found(client):
+    res = client.get("/api/menus/nowhere")
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Restaurant not found"}

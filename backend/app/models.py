@@ -17,6 +17,16 @@ class Dish(BaseModel):
     active: bool
 
 
+class PublicDish(BaseModel):
+    name: str
+    price_cents: int | None
+
+
+class PublicMenu(BaseModel):
+    name: str
+    dishes: list[PublicDish]
+
+
 class RestaurantPrivate(BaseModel):
     name: str
     slug: str

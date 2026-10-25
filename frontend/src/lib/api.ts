@@ -31,6 +31,31 @@ function errorMessage(status: number, body: unknown): string {
   return "Something went wrong. Please try again."
 }
 
+export type PublicMenu = {
+  name: string
+  dishes: { name: string; price_cents: number | null }[]
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  let res: Response
+  try {
+    res = await fetch(path, init)
+  } catch {
+    throw new ApiError(0, "Can't reach Paper to QR. Check your connection and try again.")
+  }
+  const body = res.status === 204 ? null : await res.json().catch(() => null)
+  if (!res.ok) throw new ApiError(res.status, errorMessage(res.status, body))
+  return body as T
+}
+
+export function getMenuByCode(code: string): Promise<RestaurantPrivate> {
+  return request("/api/manage", { headers: { "X-Menu-Code": code } })
+}
+
+export function getPublicMenu(slug: string): Promise<PublicMenu> {
+  return request(`/api/menus/${encodeURIComponent(slug)}`)
+}
+
 /**
  * Uploads the name and photos. Uses XMLHttpRequest rather than fetch so the
  * form can tell when the bytes are sent and the API starts reading the menu.

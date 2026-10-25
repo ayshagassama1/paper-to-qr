@@ -24,7 +24,7 @@ export function HomePage() {
           <div className="mx-auto mt-10 w-full max-w-xl px-4 sm:px-6">
             <div className="rounded-3xl border border-hairline bg-surface p-6 text-base sm:p-9">
               <TabsContent value="existing" className="text-base">
-                <ExistingMenuForm />
+                <ExistingMenuForm onFound={(menu) => setOpened({ menu, justCreated: false })} />
               </TabsContent>
               <TabsContent value="new" className="text-base">
                 <NewRestaurantForm onCreated={(menu) => setOpened({ menu, justCreated: true })} />
