@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Open the site through the LAN address Vite prints, download the QR code, scan it with your phone and check that your menu appears. Then reload the Home screen, paste the code in Existing menu and check that you get your menu back; try a wrong code and an invented slug.
   Commit: `Add QR code, customer menu page and lookup by code`
 
-- [ ] **3. The manager fixes and updates the dishes**
+- [x] **3. The manager fixes and updates the dishes**
   Becomes usable: On the Menu screen, the pencil makes the name and price editable and turns into a check that saves; the x opens a confirmation modal before deleting; Add dish appends a line in edit mode; the toggle marks a dish inactive (dimmed for the manager, hidden for the customer). A dish without a name can't be validated. Changes survive a reload with the code.
   Why now: Editing is the safety net for misread extractions and the reason the manager comes back. It builds on the code and the customer page from slice 2, which is how the toggle can be checked end to end.
   PRD ref: `prd.md > The Core Journey` (step 5), `prd.md > Edit the menu`, `prd.md > States and Boundaries` (deleting, dish without a name, inactive dish, no dishes extracted)
@@ -73,3 +73,5 @@ Activity mode:
 ## Revisions
 
 - The Menu screen now opens inside the home panel, in place of the form, with the hero and tab buttons kept on screen: at the first hands-on check the learner felt that replacing the whole hero looked like being sent to another page.
+- Dish edits address the dish by array index guarded by its id, instead of the positional `dishes.$`: mongomock applies `dishes.$` to the wrong element when the filter also matches `_id`, so the tests couldn't check the positional form; Atlas behaves the same either way.
+- In edit mode the x cancels the edit (or discards an unsaved new line) instead of deleting, with Escape doing the same: a delete control next to the check would make it easy to lose a dish while fixing it.

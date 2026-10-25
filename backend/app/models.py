@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ExtractedDish(BaseModel):
@@ -33,3 +33,28 @@ class RestaurantPrivate(BaseModel):
     code: str
     dishes: list[Dish]
     extraction_empty: bool = False
+
+
+class DishCreate(BaseModel):
+    name: str
+    price_cents: int | None = Field(default=None, ge=0)
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("A dish needs a name")
+        return v.strip()
+
+
+class DishUpdate(BaseModel):
+    name: str | None = None
+    price_cents: int | None = Field(default=None, ge=0)
+    active: bool | None = None
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str | None) -> str | None:
+        if v is not None and not v.strip():
+            raise ValueError("A dish needs a name")
+        return v.strip() if v is not None else v

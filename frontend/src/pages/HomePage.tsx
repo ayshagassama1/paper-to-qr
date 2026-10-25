@@ -6,7 +6,7 @@ import { MenuEditor } from "@/components/MenuEditor"
 import { Navbar } from "@/components/Navbar"
 import { NewRestaurantForm } from "@/components/NewRestaurantForm"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
-import type { RestaurantPrivate } from "@/lib/api"
+import type { Dish, RestaurantPrivate } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 type Tab = "existing" | "new"
@@ -16,6 +16,11 @@ export function HomePage() {
   // Each tab keeps its own opened menu; the menu replaces that tab's form inside the panel.
   const [found, setFound] = useState<RestaurantPrivate | null>(null)
   const [created, setCreated] = useState<RestaurantPrivate | null>(null)
+
+  const updateDishes =
+    (set: typeof setFound) =>
+    (update: (dishes: Dish[]) => Dish[]) =>
+      set((menu) => menu && { ...menu, dishes: update(menu.dishes) })
 
   const showingMenu = tab === "existing" ? found !== null : created !== null
 
@@ -34,14 +39,14 @@ export function HomePage() {
           <div className="rounded-3xl border border-hairline bg-surface p-5 text-base sm:p-9">
             <TabsContent value="existing" className="text-base">
               {found ? (
-                <MenuEditor menu={found} justCreated={false} onClose={() => setFound(null)} closeLabel="Open another menu" />
+                <MenuEditor menu={found} justCreated={false} onDishesChange={updateDishes(setFound)} onClose={() => setFound(null)} closeLabel="Open another menu" />
               ) : (
                 <ExistingMenuForm onFound={setFound} />
               )}
             </TabsContent>
             <TabsContent value="new" className="text-base">
               {created ? (
-                <MenuEditor menu={created} justCreated onClose={() => setCreated(null)} closeLabel="Add another restaurant" />
+                <MenuEditor menu={created} justCreated onDishesChange={updateDishes(setCreated)} onClose={() => setCreated(null)} closeLabel="Add another restaurant" />
               ) : (
                 <NewRestaurantForm onCreated={setCreated} />
               )}

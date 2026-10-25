@@ -97,3 +97,79 @@ def test_unknown_slug_is_not_found(client):
     res = client.get("/api/menus/nowhere")
     assert res.status_code == 404
     assert res.json() == {"detail": "Restaurant not found"}
+
+
+def manage(client, method, path, code, **kwargs):
+    return client.request(method, f"/api/manage{path}", headers={"X-Menu-Code": code}, **kwargs)
+
+
+def menu_by_code(client, code):
+    return manage(client, "GET", "", code).json()["dishes"]
+
+
+def test_add_dish(client):
+    code = create(client).json()["code"]
+    res = manage(client, "POST", "/dishes", code, json={"name": "  Crème brûlée ", "price_cents": 700})
+    assert res.status_code == 201
+    assert res.json()["name"] == "Crème brûlée"
+    assert res.json()["active"] is True
+    assert menu_by_code(client, code)[-1] == res.json()
+
+
+def test_dish_without_a_name_is_rejected(client):
+    created = create(client).json()
+    code, dish_id = created["code"], created["dishes"][0]["id"]
+    assert manage(client, "POST", "/dishes", code, json={"name": "   ", "price_cents": 700}).status_code == 422
+    assert manage(client, "PATCH", f"/dishes/{dish_id}", code, json={"name": ""}).status_code == 422
+    assert len(menu_by_code(client, code)) == 2
+
+
+def test_edit_name_and_price(client):
+    created = create(client).json()
+    code, dish_id = created["code"], created["dishes"][1]["id"]
+    res = manage(client, "PATCH", f"/dishes/{dish_id}", code, json={"name": "Tarte Tatin", "price_cents": 650})
+    assert res.status_code == 200
+    assert res.json() == {"id": dish_id, "name": "Tarte Tatin", "price_cents": 650, "active": True}
+    assert menu_by_code(client, code)[1] == res.json()
+
+
+def test_remove_a_price(client):
+    created = create(client).json()
+    code, dish_id = created["code"], created["dishes"][0]["id"]
+    res = manage(client, "PATCH", f"/dishes/{dish_id}", code, json={"price_cents": None})
+    assert res.json()["price_cents"] is None
+    assert res.json()["name"] == "Quiche lorraine"
+
+
+def test_toggle_hides_dish_from_customers(client):
+    created = create(client).json()
+    code, dish_id = created["code"], created["dishes"][0]["id"]
+    assert manage(client, "PATCH", f"/dishes/{dish_id}", code, json={"active": False}).json()["active"] is False
+    assert [d["name"] for d in client.get("/api/menus/chez-marcel").json()["dishes"]] == ["Tarte tatin"]
+    assert menu_by_code(client, code)[0]["active"] is False
+    manage(client, "PATCH", f"/dishes/{dish_id}", code, json={"active": True})
+    assert len(client.get("/api/menus/chez-marcel").json()["dishes"]) == 2
+
+
+def test_delete_dish(client):
+    created = create(client).json()
+    code, dish_id = created["code"], created["dishes"][0]["id"]
+    assert manage(client, "DELETE", f"/dishes/{dish_id}", code).status_code == 204
+    assert [d["name"] for d in menu_by_code(client, code)] == ["Tarte tatin"]
+    assert manage(client, "DELETE", f"/dishes/{dish_id}", code).status_code == 404
+
+
+def test_unknown_dish_or_wrong_code(client):
+    created = create(client).json()
+    code, dish_id = created["code"], created["dishes"][0]["id"]
+    assert manage(client, "PATCH", "/dishes/nope", code, json={"active": False}).status_code == 404
+    assert manage(client, "PATCH", f"/dishes/{dish_id}", "AAAAAA", json={"active": False}).status_code == 404
+    assert manage(client, "POST", "/dishes", "AAAAAA", json={"name": "X"}).status_code == 404
+    assert manage(client, "DELETE", f"/dishes/{dish_id}", "AAAAAA").status_code == 404
+
+
+def test_dish_from_another_restaurant_cant_be_edited(client):
+    first = create(client).json()
+    second = create(client).json()
+    other_dish = first["dishes"][0]["id"]
+    assert manage(client, "PATCH", f"/dishes/{other_dish}", second["code"], json={"active": False}).status_code == 404

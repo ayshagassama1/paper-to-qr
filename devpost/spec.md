@@ -239,7 +239,7 @@ Collection `restaurants`, one document per restaurant:
 | Data | Where it lives | How it's updated | When the user leaves and comes back |
 |---|---|---|---|
 | Restaurant name, slug, code | MongoDB | Written once at creation; never changed | Retrieved by code (manager) or slug (customer) |
-| Dishes | MongoDB, embedded array | `$push` (add), `$set` on `dishes.$` matched by `id` (edit, toggle), `$pull` (delete) | Same as above, always fresh from the API |
+| Dishes | MongoDB, embedded array | `$push` (add), `$set` on `dishes.<index>` guarded by the dish `id` (edit, toggle), `$pull` (delete) | Same as above, always fresh from the API |
 | Photos | Browser memory, then the Lambda request only | Never stored | Gone |
 | QR code | Not stored; drawn from `origin + slug` | n/a | Redrawn identically every time |
 | Code typed by the manager | React state only | n/a | Must be typed again (no session, by design) |

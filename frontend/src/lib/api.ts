@@ -52,6 +52,33 @@ export function getMenuByCode(code: string): Promise<RestaurantPrivate> {
   return request("/api/manage", { headers: { "X-Menu-Code": code } })
 }
 
+export function addDish(code: string, dish: { name: string; price_cents: number | null }): Promise<Dish> {
+  return request("/api/manage/dishes", {
+    method: "POST",
+    headers: { "X-Menu-Code": code, "Content-Type": "application/json" },
+    body: JSON.stringify(dish),
+  })
+}
+
+export function updateDish(
+  code: string,
+  id: string,
+  changes: Partial<Pick<Dish, "name" | "price_cents" | "active">>,
+): Promise<Dish> {
+  return request(`/api/manage/dishes/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "X-Menu-Code": code, "Content-Type": "application/json" },
+    body: JSON.stringify(changes),
+  })
+}
+
+export function deleteDish(code: string, id: string): Promise<void> {
+  return request(`/api/manage/dishes/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: { "X-Menu-Code": code },
+  })
+}
+
 export function getPublicMenu(slug: string): Promise<PublicMenu> {
   return request(`/api/menus/${encodeURIComponent(slug)}`)
 }
