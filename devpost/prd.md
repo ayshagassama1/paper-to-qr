@@ -1,6 +1,6 @@
 ---
 doc: prd
-status: draft
+status: approved
 ---
 
 # Paper to QR: Product Requirements
@@ -51,10 +51,10 @@ The restaurant name and the list of active dishes with prices. Nothing else.
 - **Overall:** simple, clean, readable, and cosy at the same time.
 - **The Uber and Instagram quality to aim for:** you see what the platform offers at first glance; there isn't a lot of text, but it is understandable; there is a balance.
 - **Typography:** **Fraunces** for headings, **DM Sans** for body text.
-- **Colors:** warm off-white background, near-black text, and **a single accent color** for actions (tomato red or olive green; see Open Questions).
+- **Colors:** the learner's **"Pétrole"** palette, between blue and green with a touch of apricot. White background, light petrol-tinted surfaces, petrol for actions, and apricot only for the "menu ready" moment. Headings (Fraunces) in the main text color. Light theme only: a dark background doesn't work for a menu. Exact values in `spec.md > Look and Feel`.
 - **Layout reference:** the Uxcel hero (navbar, H1, subtext, two buttons) on Mobbin (https://mobbin.com), adapted as described in Screens and Layout.
 - **UI language:** English, for the judges.
-- **Avoid:** emoji anywhere in the UI, em dashes in any text, chalkboard or slate imagery, generic AI-app styling (purple gradients and the like), and the generic layout of a title at the top, icons at the bottom and a hamburger menu at the top left.
+- **Avoid:** emoji anywhere in the UI, em dashes in any text, chalkboard or slate imagery, generic AI-app styling (purple gradients, white cards with a mid-grey outline, drop shadows, a colored stripe on one side of a card, boxing every element). Cards are light fills with a very faint tone-on-tone hairline, used sparingly, as on Uxcel, and the generic layout of a title at the top, icons at the bottom and a hamburger menu at the top left.
 
 ## Features and Behavior
 
@@ -78,8 +78,9 @@ Source: `scope.md > The POC Boundary`, plus the add and toggle features decided 
 - As a manager, I want to fix and update dishes so that the menu online matches what I serve today.
   - [ ] Clicking the pencil makes the dish name and the price editable in place, and the pencil is replaced by a check icon (validate).
   - [ ] Clicking the check saves the change. Reloading the menu with the code shows the new value.
-  - [ ] Clicking the x removes the dish from the list.
+  - [ ] Clicking the x opens a confirmation modal. Confirming removes the dish from the list; cancelling keeps it.
   - [ ] Add dish adds a new line where the manager enters a name and a price, then validates it.
+  - [ ] A dish without a name can't be validated.
   - [ ] Toggling a dish to inactive keeps it in the manager's list but hides it from the customer page; toggling it back shows it again.
 
 ### Get the QR code and the code
@@ -94,14 +95,20 @@ Source: `scope.md > The Core Loop` (customer side).
 - As a customer at the table, I want to scan the QR code and see the dishes and prices so that I can choose.
   - [ ] The page shows the restaurant name and the active dishes with their prices, and nothing else.
   - [ ] Inactive dishes don't appear.
+  - [ ] A restaurant with no active dish shows its name and "No dishes available right now".
+  - [ ] An unknown `/restaurant-slug` shows a simple "Restaurant not found" page.
   - [ ] A change saved by the manager shows up when the page is reloaded.
 
 ## States and Boundaries
 
 - **First use (New restaurant):** the restaurant name is required.
 - **Processing:** the current step is displayed until the Menu screen appears.
-- **No dishes extracted:** the manager sees a message asking for a better quality photo, and is offered to enter the menu by hand from an empty list using Add dish. The code and QR code are still provided.
+- **No dishes extracted:** the restaurant, its code and its QR code are still created. The manager sees a message asking for a better quality photo, and is offered to enter the menu by hand from an empty list using Add dish.
 - **Unknown code:** an error message on the form ("Restaurant not found").
+- **Deleting a dish:** a confirmation modal appears; the dish is removed only after confirming.
+- **Dish without a name:** can't be validated.
+- **Unknown `/restaurant-slug`:** a simple "Restaurant not found" page.
+- **No active dish:** the customer page shows the restaurant name and "No dishes available right now".
 - **Inactive dish:** visible to the manager, hidden from customers.
 - **What persists:** restaurant name, code, QR code and dishes (name, price, active or not). Uploaded photos are never kept.
 - **Who can do what:** whoever has the code can view and edit the menu. Anyone with the QR code or the URL can see the active dishes.
@@ -120,13 +127,12 @@ Source: `scope.md > The Core Loop` (customer side).
 - **Fraunces + DM Sans:** chosen over Montserrat, which is very common.
 - **Name, "Paper to QR":** says what the product does.
 
-### Assumptions (not yet confirmed by the learner)
-- The restaurant, its code and its QR code are created as soon as processing finishes, even if no dish was found.
-- Deleting a dish takes effect immediately, without a confirmation step.
-- A dish needs a name to be validated.
-- Two restaurants with the same name get two different URLs.
-- The code is short enough to copy and paste easily; its exact format is decided in `4-spec`.
-- An unknown `/restaurant-slug` shows a simple "Restaurant not found" page, and a restaurant with no active dish shows its name and a short "No dishes available right now" message.
+- **Restaurant created as soon as processing finishes, even with no dish found:** the manager can then enter the menu by hand.
+- **Delete asks for confirmation in a modal:** avoids losing a dish by mistake.
+- **A dish needs a name:** a line without a name is not validated.
+- **Two restaurants with the same name get different URLs:** each restaurant has its own QR code.
+- **The code is short and easy to copy:** its exact format is decided in `4-spec`.
+- **Unknown slug and empty menu have their own messages:** "Restaurant not found" page; name plus "No dishes available right now".
 
 ## What We're Building
 
@@ -160,5 +166,4 @@ Source: `scope.md > The Core Loop` (customer side).
 
 ## Open Questions
 
-- **Accent color: tomato red or olive green?** Can wait for `4-spec`.
-- **Price display:** currency symbol and format (for example "12.50 €"). Can wait for `4-spec`.
+- None. Accent color ("Pétrole" palette) and price display (`12.50 €`) were settled in `4-spec`.

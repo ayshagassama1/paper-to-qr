@@ -9,35 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #faf6ef;
-    --paper: #fffdf9;
-    --ink: #1c1a17;
-    --ink-soft: #625b51;
-    --line: #e4dccd;
-    --muted-bg: #f1ebe0;
-    --accent: #c8432b;
-    --accent-soft: #f8e1da;
-    --accent-ink: #ffffff;
+    color-scheme: light;
+    --bg: #FFFFFF; --paper: #E9F2F3; --surface: #E9F2F3; --ink: #13282D; --ink-soft: #4F6469;
+    --line: #D0E0E2; --muted-bg: rgba(29,98,115,.08);
+    --accent: #1D6273; --accent-hover: #174F5D; --accent-soft: #E9F2F3; --accent-ink: #FFFFFF;
+    --apricot: #F8CFA0; --apricot-ink: #5C3209; --danger: #B3412E; --input-border: #7A9298;
+    --heading: #13282D;
     --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
     --sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
   }
-  :root[data-accent="olive"] { --accent: #5e6b2f; --accent-soft: #e7ead6; }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #161513; --paper: #1f1d1a; --ink: #f1ece3; --ink-soft: #aaa293;
-      --line: #36322c; --muted-bg: #282521; --accent: #ec6a50; --accent-soft: #3b211b; --accent-ink: #1a0f0c;
-    }
-    :root:not([data-theme="light"])[data-accent="olive"] { --accent: #a9b86a; --accent-soft: #2b2f1c; }
-  }
-  :root[data-theme="dark"] {
-    --bg: #161513; --paper: #1f1d1a; --ink: #f1ece3; --ink-soft: #aaa293;
-    --line: #36322c; --muted-bg: #282521; --accent: #ec6a50; --accent-soft: #3b211b; --accent-ink: #1a0f0c;
-  }
-
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); }
   .wrap { max-width: 920px; margin: 0 auto; padding: 48px 16px 80px; }
-  h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; color: var(--heading); }
   h1 { font-size: clamp(2.2rem, 7vw, 3.4rem); line-height: 1.05; margin: 10px 0 14px; }
   h2 { font-size: 1.6rem; margin: 0 0 14px; }
   h3 { font-size: 1.15rem; margin: 0 0 8px; }
@@ -49,7 +34,7 @@
   .eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .badge { border: 1px solid var(--accent); color: var(--accent); padding: 4px 9px; border-radius: 999px; }
   .lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 660px; }
-  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
 
   /* Scope -> PRD */
   .expand { display: grid; gap: 10px; }
@@ -75,8 +60,8 @@
   /* Screen stepper */
   .stepper { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
   .stepper button {
-    font: 500 14px var(--sans); color: var(--ink); background: var(--paper);
-    border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+    font: 500 14px var(--sans); color: var(--ink); background: var(--surface);
+    border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer;
   }
   .stepper button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   .stepper button .num { color: var(--accent); margin-right: 6px; font-weight: 600; }
@@ -96,16 +81,16 @@
   .state strong { display: block; font-size: .85rem; }
 
   /* Mock screens */
-  .mock { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px; font-size: 13px; align-self: start; }
+  .mock { background: #FFFFFF; border: 0; border-radius: 18px; padding: 16px; font-size: 13px; align-self: start; }
   .mock .nav { display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
   .mock .logo { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); }
   .mock .brand { font: 600 14px var(--serif); }
   .mock .h1 { font: 600 20px/1.15 var(--serif); text-align: center; margin: 4px 0 6px; }
   .mock .sub { color: var(--ink-soft); text-align: center; margin-bottom: 12px; }
   .mock .btns { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
-  .mock .btn { border-radius: 8px; padding: 6px 12px; border: 1px solid var(--line); background: var(--paper); font-weight: 500; }
+  .mock .btn { border-radius: 8px; padding: 6px 12px; border: 0; background: var(--surface); font-weight: 500; }
   .mock .btn.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-  .mock .field { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; color: var(--ink-soft); margin-bottom: 8px; }
+  .mock .field { background: #FFFFFF; border-color: var(--input-border) !important; border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; color: var(--ink-soft); margin-bottom: 8px; }
   .mock .err { color: var(--accent); font-size: 12px; margin: -4px 0 8px; }
   .mock .row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
   .mock .row .name { flex: 1; }
@@ -130,7 +115,7 @@
   .mock .dot.done { background: var(--accent); border-color: var(--accent); }
   .mock .dot.cur { border-color: var(--accent); }
   .mock .muted { color: var(--ink-soft); }
-  .mock .phone { max-width: 220px; margin: 0 auto; border: 1px solid var(--line); border-radius: 22px; padding: 18px 14px; background: var(--paper); }
+  .mock .phone { max-width: 220px; margin: 0 auto; border: 1px solid var(--line); border-radius: 22px; padding: 18px 14px; background: #FFFFFF; }
 
   /* Look and feel */
   .lf { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -150,11 +135,11 @@
   .decisions .card { padding: 16px; }
   .decisions strong { display: block; font-family: var(--serif); font-weight: 600; font-size: 1.02rem; margin-bottom: 4px; }
   .decisions span { color: var(--ink-soft); font-size: .95rem; }
-  .assume { border: 1.5px dashed var(--accent); border-radius: 14px; padding: 18px 20px; background: var(--paper); }
+  .assume { border: 1.5px dashed var(--accent); border-radius: 18px; padding: 18px 20px; background: var(--paper); }
   .assume ul { margin: 0; padding-left: 18px; }
   .assume li { margin-bottom: 6px; }
 
-  details { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 10px; }
   summary { cursor: pointer; list-style: none; padding: 16px 20px; display: flex; align-items: center; gap: 12px; font-weight: 600; }
   summary::-webkit-details-marker { display: none; }
   summary::after { content: "+"; margin-left: auto; font: 400 20px/1 var(--sans); color: var(--ink-soft); }
@@ -177,7 +162,7 @@
 <div class="wrap">
 
   <header>
-    <div class="eyebrow">Product requirements <span class="badge">Draft</span></div>
+    <div class="eyebrow">Product requirements <span class="badge">Approved</span></div>
     <h1>Paper to QR</h1>
     <p class="lede">A photo of a paper or chalkboard menu becomes an editable digital menu, a code and a printable QR code. For the manager whose menu of the day changes often, and the customers who scan it at the table.</p>
   </header>
@@ -333,7 +318,8 @@
         <ul class="crit">
           <li>Pencil makes name and price editable in place; it turns into a check.</li>
           <li>Check saves: reopening with the code shows the new value.</li>
-          <li>x removes the dish.</li>
+          <li>x opens a confirmation modal; the dish goes only after confirming.</li>
+          <li>A dish without a name can't be validated.</li>
           <li>Inactive dish stays in this list, disappears from the customer page.</li>
           <li>Download icon saves the QR as an image; scanning it opens the customer page.</li>
         </ul>
@@ -357,7 +343,7 @@
         </ul>
         <div class="label">States</div>
         <div class="state"><strong>Inactive dish</strong>Not shown (Tarte Tatin is missing here).</div>
-        <div class="state"><strong>Assumed: no active dish / unknown slug</strong>Name with "No dishes available right now" / a simple "Restaurant not found" page.</div>
+        <div class="state"><strong>No active dish / unknown slug</strong>Name with "No dishes available right now" / a simple "Restaurant not found" page.</div>
         <div class="label">Proof</div>
         <ul class="crit">
           <li>Only active dishes appear.</li>
@@ -376,17 +362,15 @@
         <div class="small">DM Sans for body text: clean and readable, so the headings can carry the warmth.</div>
       </div>
       <div class="card">
-        <div class="label">Colors</div>
+        <div class="label">Colors: "Pétrole", light only</div>
         <div class="swatches">
-          <div class="sw"><i style="background:var(--bg)"></i>Off-white</div>
-          <div class="sw"><i style="background:var(--ink)"></i>Near-black</div>
-          <div class="sw"><i style="background:var(--accent)"></i>Accent</div>
+          <div class="sw"><i style="background:#FFFFFF"></i>White</div>
+          <div class="sw"><i style="background:#E9F2F3"></i>Surface</div>
+          <div class="sw"><i style="background:#13282D"></i>Ink</div>
+          <div class="sw"><i style="background:#1D6273"></i>Petrol</div>
+          <div class="sw"><i style="background:#F8CFA0"></i>Apricot</div>
         </div>
-        <div class="accent-pick" role="group" aria-label="Preview accent">
-          <button aria-pressed="true" data-accent="tomato">Tomato red</button>
-          <button aria-pressed="false" data-accent="olive">Olive green</button>
-        </div>
-        <p style="font-size:.85rem;color:var(--ink-soft);margin-top:8px">Undecided. Switch to preview the whole page with each.</p>
+        <p style="font-size:.85rem;color:var(--ink-soft);margin-top:8px">Between blue and green, with apricot only for the "menu ready" moment. No dark background: it doesn't work for a menu. Values in the spec.</p>
       </div>
     </div>
     <div class="card" style="margin-top:20px">
@@ -394,7 +378,7 @@
       <p>Simple, clean, readable, and cosy. What Uber and Instagram get right: <strong>you see what the platform offers at first glance, there isn't much text but it's understandable, there is a balance.</strong> UI in English.</p>
       <div class="label">Avoid</div>
       <ul class="avoid">
-        <li>emoji</li><li>em dashes</li><li>chalkboard imagery</li><li>purple AI gradients</li><li>nav links</li><li>title top, icons bottom, hamburger top left</li>
+        <li>emoji</li><li>em dashes</li><li>chalkboard imagery</li><li>purple AI gradients</li><li>white cards with mid-grey outlines</li><li>drop shadows</li><li>colored side stripes</li><li>nav links</li><li>title top, icons bottom, hamburger top left</li>
       </ul>
     </div>
   </section>
@@ -414,16 +398,14 @@
   </section>
 
   <section>
-    <h2>Assumptions to confirm</h2>
-    <div class="assume">
-      <ul>
-        <li>The restaurant, code and QR are created as soon as processing finishes, even with no dish found.</li>
-        <li>Deleting a dish is immediate, no confirmation.</li>
-        <li>A dish needs a name to be validated.</li>
-        <li>Two restaurants with the same name get different URLs.</li>
-        <li>The code is short and easy to copy; its format is set in the spec.</li>
-        <li>Unknown slug: "Restaurant not found" page. No active dish: name plus "No dishes available right now".</li>
-      </ul>
+    <h2>Edge cases, settled</h2>
+    <div class="decisions">
+      <div class="card"><strong>Created even with no dish</strong><span>Restaurant, code and QR exist as soon as processing ends; the manager can type the menu.</span></div>
+      <div class="card"><strong>Delete asks first</strong><span>A confirmation modal before a dish is removed.</span></div>
+      <div class="card"><strong>A dish needs a name</strong><span>A nameless line can't be validated.</span></div>
+      <div class="card"><strong>Same name, different URLs</strong><span>Each restaurant gets its own QR code.</span></div>
+      <div class="card"><strong>Short, easy-to-copy code</strong><span>Exact format set in the spec.</span></div>
+      <div class="card"><strong>Clear empty and unknown states</strong><span>"Restaurant not found" page; "No dishes available right now".</span></div>
     </div>
   </section>
 
@@ -472,8 +454,7 @@
   <section>
     <h2>Open questions</h2>
     <div class="card">
-      <p><strong>Accent color:</strong> tomato red or olive green? Can wait for the spec.</p>
-      <p style="margin:0"><strong>Price display:</strong> currency symbol and format. Can wait for the spec.</p>
+      <p style="margin:0">None. The palette ("Pétrole") and the price format (<code>12.50 €</code>) were settled in the spec.</p>
     </div>
   </section>
 
@@ -491,10 +472,6 @@
   tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.p)));
   show('p1');
 
-  document.querySelectorAll('.accent-pick button').forEach(b => b.addEventListener('click', () => {
-    document.documentElement.dataset.accent = b.dataset.accent;
-    document.querySelectorAll('.accent-pick button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-  }));
 </script>
 </body>
 </html>

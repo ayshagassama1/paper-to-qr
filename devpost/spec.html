@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper to QR Spec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #FFFFFF; --paper: #E9F2F3; --surface: #E9F2F3; --ink: #13282D; --ink-soft: #4F6469;
+    --line: #D0E0E2; --muted-bg: rgba(29,98,115,.08);
+    --accent: #1D6273; --accent-hover: #174F5D; --accent-soft: #E9F2F3; --accent-ink: #FFFFFF;
+    --apricot: #F8CFA0; --apricot-ink: #5C3209; --danger: #B3412E; --input-border: #7A9298;
+    --heading: #13282D;
+    --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 48px 16px 80px; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; color: var(--heading); }
+  h1 { font-size: clamp(2.2rem, 7vw, 3.4rem); line-height: 1.05; margin: 10px 0 14px; }
+  h2 { font-size: 1.6rem; margin: 0 0 14px; }
+  h3 { font-size: 1.1rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  section { margin-top: 56px; }
+  code { font: 0.86em var(--mono); background: var(--muted-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+  .eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .badge { border: 1px solid var(--accent); color: var(--accent); padding: 4px 9px; border-radius: 999px; }
+  .lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 680px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+  .muted { color: var(--ink-soft); }
+  .small { font-size: .88rem; }
+  .label { font: 600 11px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin: 14px 0 6px; }
+  .label:first-child { margin-top: 0; }
+
+  .pieces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .pieces .card { padding: 16px; }
+  .pieces .k { font: 600 11px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .pieces p { color: var(--ink-soft); font-size: .93rem; margin: 0; }
+  .walk { margin-top: 14px; font-size: 1.02rem; }
+
+  /* Architecture */
+  .arch svg { width: 100%; height: auto; display: block; }
+  .n rect { fill: #FFFFFF; stroke: var(--line); stroke-width: 1.5; transition: opacity .2s, stroke .2s; }
+  .n { transition: opacity .2s; }
+  .arch.active .n:not(.on) { opacity: .45; }
+  .n text { fill: var(--ink); font: 600 14px var(--sans); }
+  .n text.s { fill: var(--ink-soft); font-weight: 400; font-size: 12px; }
+  .n.on rect { fill: #FFFFFF; stroke: var(--accent); stroke-width: 2.5; }
+  .e { stroke: var(--line); stroke-width: 2; fill: none; transition: stroke .2s; }
+  .e.on { stroke: var(--accent); stroke-width: 2.5; }
+  .el { fill: var(--ink-soft); font: 12px var(--mono); }
+  .zone { fill: none; stroke: var(--line); stroke-dasharray: 4 4; }
+  .zl { fill: var(--ink-soft); font: 600 11px var(--sans); letter-spacing: .1em; }
+
+  .stepper { display: flex; gap: 6px; flex-wrap: wrap; margin: 18px 0 14px; }
+  .stepper button { font: 600 14px var(--sans); width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--surface); color: var(--ink); cursor: pointer; }
+  .stepper button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .stepper .nav { width: auto; padding: 0 14px; border-radius: 999px; font-weight: 500; }
+  .step { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+  .js .step[hidden] { display: none; }
+  .step + .step { margin-top: 16px; }
+  .step h3 { font-size: 1.25rem; }
+  .files { display: flex; flex-wrap: wrap; gap: 6px; }
+  .files code { font-size: .8rem; }
+  .prdref { font-size: .88rem; color: var(--ink-soft); }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font: 600 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+  .tbl { overflow-x: auto; }
+  .method { font: 600 12px var(--mono); color: var(--accent); white-space: nowrap; }
+
+  pre { margin: 0; background: var(--muted-bg); border-radius: 10px; padding: 14px; overflow-x: auto; font: 13px/1.5 var(--mono); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .tokens { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .tok { border: 0; border-radius: 10px; overflow: hidden; background: #FFFFFF; font-size: .85rem; }
+  .tok i { display: block; height: 44px; box-shadow: inset 0 -1px 0 var(--line); }
+  .tok div { padding: 8px 10px; }
+  .accent-pick { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--paper); }
+  .accent-pick button { font: 500 13px var(--sans); border: 0; background: transparent; color: var(--ink); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .accent-pick button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .avoid { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .avoid li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 14px; text-decoration: line-through; text-decoration-color: var(--accent); color: var(--ink-soft); }
+  .rule { margin: 0 0 12px; }
+
+  .fail { display: grid; gap: 10px; }
+  .fail .row { display: grid; grid-template-columns: 1fr 24px 1.3fr; gap: 10px; align-items: start; }
+  .fail .arrow { color: var(--accent); font-weight: 600; text-align: center; }
+
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; list-style: none; padding: 16px 20px; display: flex; align-items: center; gap: 12px; font-weight: 600; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; margin-left: auto; font: 400 20px/1 var(--sans); color: var(--ink-soft); }
+  details[open] summary::after { content: "\2013"; }
+  summary .count { font-weight: 500; font-size: 13px; color: var(--ink-soft); }
+  details .body { padding: 0 20px 18px; }
+  details ul { margin: 0; padding-left: 20px; }
+  details li { margin-bottom: 8px; }
+
+  .dec { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .dec ul { margin: 0; padding-left: 18px; }
+  .dec li { margin-bottom: 6px; }
+  .unknown { background: var(--muted-bg); border-radius: 18px; padding: 20px; }
+  .open li { margin-bottom: 8px; }
+
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
+
+  @media (max-width: 760px) {
+    .pieces { grid-template-columns: 1fr 1fr; }
+    .step, .two, .dec { grid-template-columns: 1fr; }
+    .fail .row { grid-template-columns: 1fr; gap: 2px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+    .fail .arrow { display: none; }
+  }
+  @media (max-width: 460px) { .pieces { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Technical spec <span class="badge">Approved</span></div>
+    <h1>Paper to QR</h1>
+    <p class="lede">How the approved PRD gets built: React on S3 and CloudFront, FastAPI on Lambda, Claude Haiku 5.5 reading the photos, and one MongoDB collection.</p>
+  </header>
+
+  <section>
+    <h2>How it works, in plain language</h2>
+    <div class="pieces">
+      <div class="card"><div class="k">The website</div><h3>React</h3><p>Everything people see. Shrinks photos before sending (and strips their metadata). Draws the QR code itself.</p></div>
+      <div class="card"><div class="k">The API</div><h3>FastAPI on Lambda</h3><p>Wakes up on request. Creates restaurants, finds a menu by code, saves dish changes.</p></div>
+      <div class="card"><div class="k">The reader</div><h3>Claude Haiku 5.5</h3><p>Gets the photos, returns dishes and prices as validated JSON. Well under a cent per menu.</p></div>
+      <div class="card"><div class="k">The memory</div><h3>MongoDB Atlas</h3><p>One <code>restaurants</code> collection: name, slug, code, dishes. Nothing else.</p></div>
+    </div>
+    <p class="walk card">Chez Marcel's manager photographs the chalkboard. The browser shrinks it and sends it with the name. The API asks Claude for the dishes, saves Chez Marcel with a new code and the slug <code>chez-marcel</code>, and sends it all back. The browser shows the list, the code, and a QR code for <code>/chez-marcel</code>. Next day, the code finds the same document, and every click updates it. A customer scanning the QR code sees the active dishes.</p>
+  </section>
+
+  <section id="journey">
+    <h2>The journey through the system</h2>
+    <p class="muted">Step through the PRD's core journey. The highlighted pieces are the ones involved.</p>
+    <div class="card arch">
+      <svg viewBox="0 0 840 410" role="img" aria-label="The browser talks to CloudFront. CloudFront serves the website from S3 and forwards /api requests to the HTTP API, which calls the Lambda. The Lambda calls Claude Haiku 5.5 and MongoDB Atlas.">
+        <defs>
+          <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-soft)"/></marker>
+        </defs>
+        <rect class="zone" x="395" y="15" width="440" height="385" rx="14"/>
+        <text class="zl" x="410" y="390">AWS + SERVICES</text>
+
+        <path id="e-bc" class="e" d="M170 165 H218" marker-end="url(#a)"/>
+        <path id="e-cs" class="e" d="M360 155 H385 V70 H408" marker-end="url(#a)"/>
+        <path id="e-ca" class="e" d="M360 175 H385 V260 H408" marker-end="url(#a)"/>
+        <path id="e-al" class="e" d="M570 260 H618" marker-end="url(#a)"/>
+        <path id="e-lc" class="e" d="M720 230 V182" marker-end="url(#a)"/>
+        <path id="e-lm" class="e" d="M720 290 V328" marker-end="url(#a)"/>
+        <text class="el" x="300" y="62">/*</text>
+        <text class="el" x="290" y="282">/api/*</text>
+
+        <g class="n" id="n-browser"><rect x="20" y="135" width="150" height="60" rx="10"/><text x="95" y="161" text-anchor="middle">Browser</text><text class="s" x="95" y="179" text-anchor="middle">React app</text></g>
+        <g class="n" id="n-cf"><rect x="220" y="135" width="140" height="60" rx="10"/><text x="290" y="161" text-anchor="middle">CloudFront</text><text class="s" x="290" y="179" text-anchor="middle">one address</text></g>
+        <g class="n" id="n-s3"><rect x="410" y="40" width="160" height="60" rx="10"/><text x="490" y="66" text-anchor="middle">S3</text><text class="s" x="490" y="84" text-anchor="middle">built website</text></g>
+        <g class="n" id="n-api"><rect x="410" y="230" width="160" height="60" rx="10"/><text x="490" y="256" text-anchor="middle">HTTP API</text><text class="s" x="490" y="274" text-anchor="middle">API Gateway</text></g>
+        <g class="n" id="n-lambda"><rect x="620" y="230" width="200" height="60" rx="10"/><text x="720" y="256" text-anchor="middle">Lambda</text><text class="s" x="720" y="274" text-anchor="middle">FastAPI + Mangum</text></g>
+        <g class="n" id="n-claude"><rect x="620" y="120" width="200" height="60" rx="10"/><text x="720" y="146" text-anchor="middle">Claude Haiku 5.5</text><text class="s" x="720" y="164" text-anchor="middle">photos to dishes</text></g>
+        <g class="n" id="n-mongo"><rect x="620" y="330" width="200" height="56" rx="10"/><text x="720" y="354" text-anchor="middle">MongoDB Atlas</text><text class="s" x="720" y="372" text-anchor="middle">restaurants</text></g>
+      </svg>
+    </div>
+
+    <div class="stepper" role="tablist" aria-label="Journey steps">
+      <button class="nav" data-dir="-1" aria-label="Previous step">Prev</button>
+      <span id="dots" style="display:contents"></span>
+      <button class="nav" data-dir="1" aria-label="Next step">Next</button>
+    </div>
+
+    <div id="steps">
+      <div class="step card" data-n="n-browser n-cf n-s3" data-e="e-bc e-cs">
+        <div><div class="label">Step 1</div><h3>The manager opens the site</h3><p>CloudFront serves the React app from S3. HomePage shows the Navbar, the Hero, and the tabs with Existing menu open.</p><p class="prdref">PRD: <code>Screens and Layout &gt; Home screen</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>pages/HomePage.tsx</code><code>components/Navbar.tsx</code><code>components/Hero.tsx</code><code>template.yaml</code></div></div>
+      </div>
+      <div class="step card" data-n="n-browser" data-e="">
+        <div><div class="label">Step 2</div><h3>Name and photos, shrunk in the browser</h3><p>Each photo goes through <code>compressImage</code>: decoded with the right orientation, drawn at 1600 px max, exported as JPEG 0.8. Re-encoding drops EXIF metadata (including GPS). Up to 5 photos.</p><p class="prdref">PRD: <code>Create a menu from photos</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>components/NewRestaurantForm.tsx</code><code>lib/compressImage.ts</code></div></div>
+      </div>
+      <div class="step card" data-n="n-browser n-cf n-api n-lambda" data-e="e-bc e-ca e-al">
+        <div><div class="label">Step 3</div><h3>"Uploading photos…"</h3><p><code>POST /api/restaurants</code> (multipart). The browser reports real upload progress, so the first step is honest. When the upload completes, the step switches to "Reading your menu…".</p><p class="prdref">PRD: <code>Screens and Layout &gt; Processing state</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>components/ProcessingSteps.tsx</code><code>lib/api.ts</code><code>routes/restaurants.py</code></div></div>
+      </div>
+      <div class="step card" data-n="n-lambda n-claude n-mongo" data-e="e-lc e-lm">
+        <div><div class="label">Step 4</div><h3>Claude reads, the API saves</h3><p>One <code>messages.parse</code> call with every image and a Pydantic schema, effort <code>low</code>. Prices normalized to euros. A code and a unique slug are generated, the document is inserted. On refusal or error: empty list, restaurant still created.</p><p class="prdref">PRD: <code>Create a menu from photos</code>, <code>States and Boundaries</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>app/extraction.py</code><code>app/codes.py</code><code>app/db.py</code><code>app/models.py</code></div></div>
+      </div>
+      <div class="step card" data-n="n-browser" data-e="">
+        <div><div class="label">Step 5</div><h3>The Menu screen</h3><p>Name in Fraunces (read-only), one DishRow per dish, QrPanel, and the code. If nothing was extracted: "We couldn't find any dishes. Try a clearer photo, or add your dishes below."</p><p class="prdref">PRD: <code>Screens and Layout &gt; Menu screen</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>components/MenuEditor.tsx</code><code>components/DishRow.tsx</code></div></div>
+      </div>
+      <div class="step card" data-n="n-browser n-cf n-api n-lambda n-mongo" data-e="e-bc e-ca e-al e-lm">
+        <div><div class="label">Step 6</div><h3>Edit, add, toggle, delete</h3><p>Each validated change calls <code>/api/manage/dishes…</code> with the code in the <code>X-Menu-Code</code> header. Delete goes through an AlertDialog first. Mongo updates the dish in place (<code>$push</code>, <code>$set</code>, <code>$pull</code>).</p><p class="prdref">PRD: <code>Edit the menu</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>components/DishRow.tsx</code><code>components/ui/alert-dialog.tsx</code><code>components/ui/switch.tsx</code><code>routes/manage.py</code></div></div>
+      </div>
+      <div class="step card" data-n="n-browser" data-e="">
+        <div><div class="label">Step 7</div><h3>QR code, drawn not stored</h3><p><code>QRCodeCanvas</code> for <code>origin + "/" + slug</code>, downloaded as <code>paper-to-qr-&lt;slug&gt;.png</code>. The code shows as <code>K7Q-29P</code> with "Keep this code to edit your menu".</p><p class="prdref">PRD: <code>Get the QR code and the code</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>components/QrPanel.tsx</code></div></div>
+      </div>
+      <div class="step card" data-n="n-browser n-cf n-s3 n-api n-lambda n-mongo" data-e="e-bc e-cs e-ca e-al e-lm">
+        <div><div class="label">Step 8</div><h3>The customer scans</h3><p>A CloudFront Function rewrites <code>/chez-marcel</code> to <code>index.html</code>. CustomerMenuPage calls <code>GET /api/menus/chez-marcel</code>: name and active dishes only. Unknown slug: "Restaurant not found". None active: "No dishes available right now".</p><p class="prdref">PRD: <code>View the menu as a customer</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>pages/CustomerMenuPage.tsx</code><code>routes/menus.py</code><code>template.yaml</code></div></div>
+      </div>
+      <div class="step card" data-n="n-browser n-cf n-api n-lambda n-mongo" data-e="e-bc e-ca e-al e-lm">
+        <div><div class="label">Step 9</div><h3>The manager comes back</h3><p><code>GET /api/manage</code> with the code header. 404 shows "Restaurant not found" on the form; 200 opens the same MenuEditor. The code is case-insensitive, dash optional.</p><p class="prdref">PRD: <code>Find an existing menu</code></p></div>
+        <div><div class="label">Files</div><div class="files"><code>components/ExistingMenuForm.tsx</code><code>routes/manage.py</code></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>API</h2>
+    <div class="card tbl">
+      <table>
+        <tr><th>Endpoint</th><th>Send</th><th>Get back</th></tr>
+        <tr><td><span class="method">POST</span> <code>/api/restaurants</code></td><td>multipart: name, 1 to 5 images</td><td>201 RestaurantPrivate (with <code>extraction_empty</code>)</td></tr>
+        <tr><td><span class="method">GET</span> <code>/api/manage</code></td><td>header <code>X-Menu-Code</code></td><td>200 RestaurantPrivate, or 404 "Restaurant not found"</td></tr>
+        <tr><td><span class="method">POST</span> <code>/api/manage/dishes</code></td><td>code header; <code>{name, price_cents}</code></td><td>201 Dish (422 if name blank)</td></tr>
+        <tr><td><span class="method">PATCH</span> <code>/api/manage/dishes/{id}</code></td><td>code header; any of name, price_cents, active</td><td>200 Dish</td></tr>
+        <tr><td><span class="method">DELETE</span> <code>/api/manage/dishes/{id}</code></td><td>code header</td><td>204</td></tr>
+        <tr><td><span class="method">GET</span> <code>/api/menus/{slug}</code></td><td>nothing</td><td>200 name + active dishes, or 404</td></tr>
+      </table>
+      <p class="small muted" style="margin:12px 0 0">The code travels in a header, not the URL, so it stays out of CloudFront and API Gateway access logs.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Data</h2>
+    <div class="two">
+      <div class="card">
+        <div class="label">One document per restaurant</div>
+<pre>{
+  "name": "Chez Marcel",
+  "slug": "chez-marcel",
+  "code": "K7Q29P",
+  "dishes": [
+    { "id": "uuid", "name": "Quiche lorraine",
+      "price_cents": 950, "active": true }
+  ],
+  "created_at": "...", "updated_at": "..."
+}</pre>
+        <p class="small muted" style="margin:10px 0 0">Prices in integer cents, shown as <code>12.50 €</code>. Unique indexes on <code>code</code> and <code>slug</code>.</p>
+      </div>
+      <div class="card tbl">
+        <div class="label">Where each thing lives</div>
+        <table>
+          <tr><th>Data</th><th>Lives</th><th>Come back later</th></tr>
+          <tr><td>Name, slug, code</td><td>Mongo, written once</td><td>Found by code or slug</td></tr>
+          <tr><td>Dishes</td><td>Mongo, embedded</td><td>Always fresh from the API</td></tr>
+          <tr><td>Photos</td><td>Browser, then one request</td><td>Gone, never stored</td></tr>
+          <tr><td>QR code</td><td>Nowhere</td><td>Redrawn from the slug</td></tr>
+          <tr><td>Typed code</td><td>React state</td><td>Typed again (no account)</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Look and feel, as code</h2>
+    <div class="card">
+      <p class="rule"><strong>Cards:</strong> white page; cards filled with <code>#E9F2F3</code> with a 1 px <code>#D0E0E2</code> hairline, one tone darker than the fill, as on Uxcel. Used sparingly: text sits on the page, not in boxes. No shadow. Inputs and the QR code sit on white inside cards.</p>
+      <p class="rule"><strong>Theme first.</strong> <code>styles/theme.css</code> sets the shadcn tokens before any screen exists. Components use tokens only, never hardcoded colors.</p>
+      <div class="label">Your "Pétrole" palette, light theme only</div>
+      <div class="tokens">
+        <div class="tok"><i style="background:#FFFFFF"></i><div>--bg <code>#FFFFFF</code><br><span class="muted">page background</span></div></div>
+        <div class="tok"><i style="background:#E9F2F3"></i><div>--surface <code>#E9F2F3</code><br><span class="muted">cards, drop zone</span></div></div>
+        <div class="tok"><i style="background:#D0E0E2"></i><div>--border <code>#D0E0E2</code><br><span class="muted">dividers</span></div></div>
+        <div class="tok"><i style="background:#13282D"></i><div>--ink <code>#13282D</code><br><span class="muted">main text</span></div></div>
+        <div class="tok"><i style="background:#4F6469"></i><div>--ink-soft <code>#4F6469</code><br><span class="muted">secondary text</span></div></div>
+        <div class="tok"><i style="background:#1D6273"></i><div>--petrol <code>#1D6273</code><br><span class="muted">actions, links, focus</span></div></div>
+        <div class="tok"><i style="background:#174F5D"></i><div>--petrol-hover <code>#174F5D</code><br><span class="muted">hover, active</span></div></div>
+        <div class="tok"><i style="background:#F8CFA0"></i><div>--apricot <code>#F8CFA0</code><br><span class="muted">"Menu ready" only</span></div></div>
+        <div class="tok"><i style="background:#5C3209"></i><div>--apricot-ink <code>#5C3209</code><br><span class="muted">text on apricot</span></div></div>
+        <div class="tok"><i style="background:#7A9298"></i><div>--input-border <code>#7A9298</code><br><span class="muted">field outlines, 3.3:1</span></div></div>
+        <div class="tok"><i style="background:#B3412E"></i><div>--danger <code>#B3412E</code><br><span class="muted">delete, errors, 5.7:1</span></div></div>
+        <div class="tok"><i style="background:var(--surface);font:600 24px/44px var(--serif);text-align:center;font-style:normal">Aa</i><div>Fraunces<br><span class="muted">headings, restaurant name</span></div></div>
+        <div class="tok"><i style="background:var(--surface);font:500 22px/44px var(--sans);text-align:center;font-style:normal">Aa</i><div>DM Sans<br><span class="muted">body and UI</span></div></div>
+      </div>
+      <div class="label">Contrast, checked against WCAG AA</div>
+      <p class="small">ink on white 15.3 · ink-soft on surface 5.5 · white on petrol 6.9 · petrol on surface 6.1 · apricot-ink on apricot 7.5. All text pairs pass 4.5:1. <code>--border</code> (1.4:1) is fine for dividers but too faint for input outlines, hence <code>--input-border</code>.</p>
+      <div class="label">Apricot, once</div>
+      <p><span style="background:var(--apricot);color:var(--apricot-ink);padding:3px 10px;border-radius:999px;font-weight:600;font-size:.9rem">Menu ready</span> &nbsp;next to the restaurant name, right after a new menu is created. Never on buttons or decoration.</p>
+      <div class="label">shadcn keeps the behavior, not the look</div>
+      <p>Tabs, AlertDialog, Switch, Button, Input. Restyled through the tokens: spacious, calm, short plain English.</p>
+      <div class="label">Hard rules for the build</div>
+      <ul class="avoid"><li>emoji</li><li>em dashes</li><li>chalkboard imagery</li><li>purple gradients</li><li>default zinc theme</li><li>Inter</li><li>white cards with mid-grey outlines</li><li>drop shadows</li><li>colored side stripes</li><li>dark theme</li><li>apricot anywhere else</li><li>nav links</li><li>hamburger top left</li></ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Where it breaks, and what people see</h2>
+    <div class="card fail">
+      <div class="row"><div>Claude can't read the photo, refuses, or errors</div><div class="arrow">→</div><div>Restaurant still created; "clearer photo or add your dishes below" with an empty list</div></div>
+      <div class="row"><div>Extraction over about 29 s</div><div class="arrow">→</div><div>"Reading your menu took too long. Try again with fewer photos." Nothing created.</div></div>
+      <div class="row"><div>Browser can't decode the photo (HEIC in Chrome)</div><div class="arrow">→</div><div>"This image format isn't supported. Try a JPEG or PNG photo." before upload</div></div>
+      <div class="row"><div>Unknown code or slug</div><div class="arrow">→</div><div>"Restaurant not found" on the form or the page</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Running it</h2>
+    <details open>
+      <summary>Locally</summary>
+      <div class="body">
+        <ul>
+          <li><code>backend/.env</code> from <code>.env.example</code>: <code>MONGODB_URI</code>, <code>MONGODB_DB</code>, <code>ANTHROPIC_API_KEY</code> (never committed)</li>
+          <li><code>uvicorn app.main:app --reload --port 8000</code> in <code>backend/</code></li>
+          <li><code>npm run dev -- --host</code> in <code>frontend/</code> (Vite proxies <code>/api</code>)</li>
+          <li>Open the LAN address Vite prints: the QR code uses <code>window.location.origin</code>, so a phone on the same Wi-Fi can scan it.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Deployed with SAM</summary>
+      <div class="body">
+        <ul>
+          <li><code>sam build &amp;&amp; sam deploy --guided</code>: Lambda (Python 3.12, 512 MB, 29 s), HTTP API, private S3 + OAC, CloudFront, CloudFront Function for the SPA fallback. Keys as <code>NoEcho</code> parameters.</li>
+          <li><code>npm run build</code>, <code>aws s3 sync dist s3://&lt;bucket&gt; --delete</code>, then a CloudFront invalidation.</li>
+          <li>No CloudFront custom error pages for the fallback: they would turn the API's 404 into <code>index.html</code>.</li>
+          <li>Atlas open to <code>0.0.0.0/0</code> (Lambda outside a VPC has no fixed IP).</li>
+          <li><strong>Verify early:</strong> Lambda's ~6 MB payload, the HTTP API's ~30 s timeout, base64 inflation (~+33%).</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>File structure</summary>
+      <div class="body">
+<pre>paper-to-qr/
+├── frontend/src/
+│   ├── main.tsx            # "/" and "/:slug"
+│   ├── styles/theme.css    # tokens, written FIRST
+│   ├── lib/                # api, compressImage, formatPrice, utils
+│   ├── components/ui/      # shadcn primitives
+│   ├── components/         # Navbar, Hero, forms, ProcessingSteps,
+│   │                       # MenuEditor, DishRow, QrPanel
+│   └── pages/              # HomePage, CustomerMenuPage
+├── backend/
+│   ├── app/                # main, config, db, models,
+│   │                       # extraction, codes, routes/
+│   └── tests/              # codes + API (mongomock, stubbed Claude)
+├── template.yaml           # SAM
+├── design-reference/       # gitignored Uxcel screenshot
+└── devpost/</pre>
+        <p class="small muted" style="margin-top:10px">Full annotated tree in <code>spec.md &gt; File Structure</code>.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Simplified on purpose <span class="count">6</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>QR drawn in the browser</strong>, not stored: it's fully determined by the URL.</li>
+          <li><strong>One Lambda</strong> for the whole API.</li>
+          <li><strong>One request per menu</strong>, no job queue or polling; the steps stay honest without streaming.</li>
+          <li><strong>Code stored in plain text</strong>, not hashed; low-stakes, easy to add later.</li>
+          <li><strong>Atlas open to all IPs</strong> instead of VPC peering; throwaway data.</li>
+          <li><strong>No manager session:</strong> the code is typed again, as the kernel intends.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <h2>Decisions</h2>
+    <div class="dec">
+      <div class="card">
+        <div class="label">Yours</div>
+        <ul>
+          <li>Claude Haiku 5.5, the cheapest model</li>
+          <li>Compress photos in the browser, strip metadata</li>
+          <li>Steps, not a percentage</li>
+          <li>shadcn kept, restyled with your theme</li>
+          <li>QR not stored, only the slug</li>
+          <li>S3 + CloudFront, HTTP API + Lambda, one distribution, SAM</li>
+          <li>Prices as <code>12.50 €</code></li>
+          <li>"Pétrole" palette, light theme only</li>
+          <li>Headings in ink <code>#13282D</code>, Fraunces carries the contrast</li>
+          <li>Cards as <code>#E9F2F3</code> fills with a faint <code>#D0E0E2</code> hairline, used sparingly</li>
+          <li><code>--input-border</code> and <code>--danger</code> (accepted)</li>
+        </ul>
+      </div>
+      <div class="card derived">
+        <div class="label">Filled in by the agent: check these</div>
+        <ul>
+          <li>TypeScript for the frontend</li>
+          <li>Code format <code>XXX-XXX</code>, no ambiguous characters</li>
+          <li>Slug collisions get <code>-2</code>, <code>-3</code></li>
+          <li>Code sent in an <code>X-Menu-Code</code> header</li>
+          <li>Unreadable price stays empty, the manager can fill it</li>
+          <li>Max 5 photos per upload</li>
+          <li>CloudFront Function for the SPA fallback</li>
+          <li>Where the "Menu ready" badge goes</li>
+        </ul>
+      </div>
+    </div>
+    <div class="unknown" style="margin-top:16px">
+      <div class="label">Your useful unknown</div>
+      <h3>"Is the AI slop my instructions, or the agent?"</h3>
+      <p>Largely the defaults nobody replaces: shadcn's zinc theme, Inter, the stock radius and shadows. The plan: theme first, reference and avoid list given to the agent, shadcn for behavior only.</p>
+      <p style="margin:0"><strong>Evidence during the build:</strong> at the first UI step, compare the Home screen with the PRD's Look and Feel (features visible at a glance, little text, balance, nothing from the avoid list) and note in your journal what made the difference.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Still open</h2>
+    <div class="card open">
+      <ul style="margin:0;padding-left:18px">
+                <li><strong>Verify first in the build:</strong> Haiku 5.5's max image resolution and how well it reads a real chalkboard, package versions, Lambda and HTTP API limits.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Visual companion to <code>devpost/spec.md</code>, which remains the source of truth.</footer>
+</div>
+
+<script>
+  document.documentElement.classList.add('js');
+  const steps = [...document.querySelectorAll('.step')];
+  const dots = document.getElementById('dots');
+  let cur = 0;
+  steps.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.textContent = i + 1; b.setAttribute('role', 'tab'); b.setAttribute('aria-label', 'Step ' + (i + 1));
+    b.addEventListener('click', () => show(i));
+    dots.appendChild(b);
+  });
+  function show(i) {
+    document.querySelector('.arch').classList.add('active');
+    cur = Math.max(0, Math.min(steps.length - 1, i));
+    steps.forEach((s, j) => { s.hidden = j !== cur; });
+    [...dots.children].forEach((b, j) => b.setAttribute('aria-selected', String(j === cur)));
+    document.querySelectorAll('.n, .e').forEach(el => el.classList.remove('on'));
+    const s = steps[cur];
+    (s.dataset.n + ' ' + s.dataset.e).split(' ').filter(Boolean).forEach(id => {
+      const el = document.getElementById(id); if (el) el.classList.add('on');
+    });
+  }
+  document.querySelectorAll('.stepper .nav').forEach(b => b.addEventListener('click', () => show(cur + Number(b.dataset.dir))));
+  show(0);
+
+</script>
+</body>
+</html>

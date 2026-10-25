@@ -12,3 +12,6 @@
 /.agents/
 /agent/
 /skills-lock.json
+
+# Third-party design references
+/design-reference/
