@@ -51,7 +51,7 @@ Build mode: fast
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored: after slice 1 (real photo extraction quality and the look of the Home and Menu screens, while feedback can still shape the rest of the UI)
+- [x] Early usable behavior explored: after slice 1 (real photo extraction quality and the look of the Home and Menu screens, while feedback can still shape the rest of the UI). Done across slices 1 to 3: the learner tried creation, lookup by code, editing and the customer link; her feedback led to the in-panel menu, the large photo preview and the copy button. Phone QR scan is left for the deployed site.
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
@@ -76,3 +76,4 @@ Activity mode:
 - Dish edits address the dish by array index guarded by its id, instead of the positional `dishes.$`: mongomock applies `dishes.$` to the wrong element when the filter also matches `_id`, so the tests couldn't check the positional form; Atlas behaves the same either way.
 - In edit mode the x cancels the edit (or discards an unsaved new line) instead of deleting, with Escape doing the same: a delete control next to the check would make it easy to lose a dish while fixing it.
 - Uploaded photos are previewed large and uncropped before "Read my menu" (one photo full width, several in a two-column grid), instead of small thumbnails: the learner wants judges to see that the digital menu matches the paper one. Browser memory only; nothing is stored, so `scope.md > Explicitly Cut` still holds.
+- Added a one-click copy for the menu code (icon and the code itself), with a fallback for plain-http LAN addresses where the Clipboard API is missing: requested by the learner after trying the Menu screen.
