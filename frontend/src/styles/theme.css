@@ -1,0 +1,44 @@
+/*
+ * Paper to QR design tokens: the "Petrole" palette, light theme only.
+ * Every component reads these tokens; no hardcoded colors elsewhere.
+ * Values and contrast checks: devpost/spec.md > Look and Feel.
+ */
+:root {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --surface: #e9f2f3;
+  --hairline: #d0e0e2;
+  --ink: #13282d;
+  --ink-soft: #4f6469;
+  --petrol: #1d6273;
+  --petrol-hover: #174f5d;
+  --apricot: #f8cfa0; /* "Menu ready" badge only */
+  --apricot-ink: #5c3209;
+  --input-border: #7a9298;
+  --danger: #b3412e;
+
+  /* shadcn mapping */
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--bg);
+  --popover-foreground: var(--ink);
+  --primary: var(--petrol);
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--surface);
+  --accent-foreground: var(--ink);
+  --destructive: var(--danger);
+  --border: var(--hairline);
+  --input: var(--input-border);
+  --ring: var(--petrol);
+  --radius: 0.625rem;
+
+  --font-fraunces: "Fraunces Variable", Georgia, serif;
+  --font-dm-sans: "DM Sans Variable", system-ui, sans-serif;
+}

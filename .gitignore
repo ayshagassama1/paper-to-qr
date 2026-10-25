@@ -15,3 +15,9 @@
 
 # Third-party design references
 /design-reference/
+
+# Build and tool output
+__pycache__/
+.pytest_cache/
+.venv/
+.aws-sam/
