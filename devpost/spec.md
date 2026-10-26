@@ -72,7 +72,8 @@ All choices below were made by the learner, unless they are marked as derived.
 
 ### For the submission
 - **Demo video:** on the deployed site, photograph or upload a real menu, show the steps and the list, fix a line, toggle a dish, download the QR code, scan it with a phone, then come back with the code.
-- **Public GitHub repository:** handled in `6-ship`.
+- **Public GitHub repository:** https://github.com/ayshagassama1/paper-to-qr (public, checked without authentication on 2026-10-26).
+- **Live app (optional):** https://d1gdupqowt3o8k.cloudfront.net
 
 ## Look and Feel
 
