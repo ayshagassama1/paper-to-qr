@@ -21,3 +21,6 @@ __pycache__/
 .pytest_cache/
 .venv/
 .aws-sam/
+
+video/
+.DS_Store
