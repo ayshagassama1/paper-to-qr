@@ -4,6 +4,8 @@ A restaurant manager photographs their paper or chalkboard menu and gets an edit
 
 Live: https://d1gdupqowt3o8k.cloudfront.net
 
+Demo video: https://youtu.be/fHVHyBGbxXk
+
 Built for **Build With AI: Basics**, a Devpost learning hackathon. The planning documents (scope, product requirements, technical spec, build checklist) are in [`devpost/`](devpost/).
 
 ## How to test it (for judges)
