@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper to QR App Map</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --surface: #e9f2f3;
+    --hairline: #d0e0e2;
+    --ink: #13282d;
+    --ink-soft: #4f6469;
+    --petrol: #1d6273;
+    --apricot: #f8cfa0;
+    --apricot-ink: #5c3209;
+    --radius: 10px;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 var(--body);
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 40px 16px 64px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.2; }
+  h1 { font-size: 2.2rem; margin: 0 0 8px; }
+  h2 { font-size: 1.45rem; margin: 48px 0 12px; }
+  h3 { font-size: 1.1rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  .lede { color: var(--ink-soft); font-size: 1.1rem; max-width: 640px; }
+  .meta { color: var(--ink-soft); font-size: 0.9rem; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--surface);
+    padding: 1px 5px;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+  }
+  pre {
+    background: var(--bg);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    overflow-x: auto;
+    font: 0.85rem/1.5 var(--mono);
+    margin: 10px 0 0;
+  }
+  pre code { background: none; padding: 0; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin: 0 0 14px;
+  }
+  .pieces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 14px; }
+  .pieces .card { margin: 0; }
+  .diagram { width: 100%; height: auto; display: block; margin: 8px 0 0; }
+  ol.route { list-style: none; padding: 0; margin: 0; counter-reset: stop; }
+  ol.route > li { counter-increment: stop; }
+  ol.route h3::before {
+    content: counter(stop);
+    display: inline-grid;
+    place-items: center;
+    width: 1.6em; height: 1.6em;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--petrol);
+    color: #fff;
+    font: 600 0.85rem var(--body);
+    vertical-align: 2px;
+  }
+  .anchor { color: var(--ink-soft); font-size: 0.92rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+  th { font-weight: 600; }
+  details { margin-top: 10px; }
+  summary { cursor: pointer; color: var(--petrol); font-weight: 500; }
+  summary:focus-visible, a:focus-visible { outline: 2px solid var(--petrol); outline-offset: 2px; border-radius: 4px; }
+  a { color: var(--petrol); }
+  .badge {
+    display: inline-block;
+    background: var(--apricot);
+    color: var(--apricot-ink);
+    border-radius: 999px;
+    padding: 1px 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  @media (max-width: 560px) {
+    h1 { font-size: 1.8rem; }
+    th, td { padding: 8px 4px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Paper to QR: app map</h1>
+  <p class="lede">A restaurant manager photographs a paper or chalkboard menu and gets an editable digital menu, a code to come back with, and a QR code for customers. No typing, no account.</p>
+  <p class="meta">Snapshot of commit <code>e69eb9a</code> (2026-10-26). The code can drift from this map after later changes.</p>
+
+  <h2>The main pieces</h2>
+  <div class="pieces">
+    <div class="card">
+      <h3>Frontend</h3>
+      <p>React, TypeScript, Vite, Tailwind and restyled shadcn/ui in <code>frontend/src/</code>. Served from S3 through CloudFront.</p>
+    </div>
+    <div class="card">
+      <h3>Backend</h3>
+      <p>FastAPI in <code>backend/app/</code>, run on Lambda through Mangum behind an HTTP API at <code>/api/*</code>.</p>
+    </div>
+    <div class="card">
+      <h3>External services</h3>
+      <p>Claude Haiku 5.5 reads the photos. MongoDB Atlas stores one document per restaurant. Photos are never stored.</p>
+    </div>
+  </div>
+
+  <h2>One action, end to end: a photo becomes a menu</h2>
+  <p>This is the kernel of the app: the manager clicks <strong>Read my menu</strong> and lands on the Menu screen with the <span class="badge">Menu ready</span> badge.</p>
+  <svg class="diagram" viewBox="0 0 820 230" role="img" aria-labelledby="dg-title dg-desc">
+    <title id="dg-title">Flow of a menu photo through Paper to QR</title>
+    <desc id="dg-desc">The browser compresses the photos and posts them to the create_restaurant route. The route sends them to Claude Haiku 5.5 through extract_dishes, saves the restaurant in MongoDB Atlas, and returns it to the browser, which shows the MenuEditor.</desc>
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#1d6273"/>
+      </marker>
+    </defs>
+    <g font-family="DM Sans, system-ui, sans-serif" font-size="13" fill="#13282d">
+      <rect x="10" y="20" width="220" height="74" rx="10" fill="#e9f2f3" stroke="#d0e0e2"/>
+      <text x="26" y="46" font-weight="600">1. Browser</text>
+      <text x="26" y="66">NewRestaurantForm</text>
+      <text x="26" y="84" fill="#4f6469">compressImage, XHR upload</text>
+
+      <rect x="310" y="20" width="220" height="74" rx="10" fill="#e9f2f3" stroke="#d0e0e2"/>
+      <text x="326" y="46" font-weight="600">2. API route</text>
+      <text x="326" y="66">create_restaurant</text>
+      <text x="326" y="84" fill="#4f6469">POST /api/restaurants</text>
+
+      <rect x="610" y="20" width="200" height="74" rx="10" fill="#ffffff" stroke="#7a9298"/>
+      <text x="626" y="46" font-weight="600">Claude Haiku 5.5</text>
+      <text x="626" y="66">extract_dishes</text>
+      <text x="626" y="84" fill="#4f6469">structured output</text>
+
+      <rect x="310" y="140" width="220" height="74" rx="10" fill="#ffffff" stroke="#7a9298"/>
+      <text x="326" y="166" font-weight="600">MongoDB Atlas</text>
+      <text x="326" y="186">insert_one(doc)</text>
+      <text x="326" y="204" fill="#4f6469">name, slug, code, dishes</text>
+
+      <rect x="10" y="140" width="220" height="74" rx="10" fill="#e9f2f3" stroke="#d0e0e2"/>
+      <text x="26" y="166" font-weight="600">3. Menu screen</text>
+      <text x="26" y="186">MenuEditor, DishRow, QrPanel</text>
+      <text x="26" y="204" fill="#4f6469">"Menu ready" badge</text>
+    </g>
+    <g stroke="#1d6273" stroke-width="2" fill="none" marker-end="url(#arrow)">
+      <path d="M232 57 H305"/>
+      <path d="M532 46 H605"/>
+      <path d="M608 70 H535"/>
+      <path d="M420 96 V135"/>
+      <path d="M308 177 H235"/>
+    </g>
+    <g font-family="DM Sans, system-ui, sans-serif" font-size="11" fill="#4f6469" text-anchor="middle">
+      <text x="268" y="49">photos</text>
+      <text x="570" y="38">images</text>
+      <text x="570" y="86">dishes</text>
+      <text x="271" y="169">201 JSON</text>
+    </g>
+  </svg>
+
+  <h2>Reference route (3 stops)</h2>
+  <p>A route to follow in the editor when you want to see how this action works. It was not toured as a guided activity; use it as a starting point.</p>
+  <ol class="route">
+    <li class="card">
+      <h3>The form sends the photos</h3>
+      <p class="anchor"><code>frontend/src/components/NewRestaurantForm.tsx</code>, search <code>async function submit</code>; then <code>frontend/src/lib/api.ts</code>, <code>createRestaurant</code></p>
+      <p>Each photo goes through <code>compressImage</code> (canvas, about 1600 px JPEG, which also drops EXIF and GPS data) so the upload stays under the Lambda limits. <code>createRestaurant</code> uses XMLHttpRequest so the form can switch from "Uploading photos..." to "Reading your menu..." as soon as the bytes are sent.</p>
+      <details>
+        <summary>Show the snippet</summary>
+<pre><code>const compressed = await Promise.all(photos.map(compressImage))
+onCreated(await createRestaurant(name.trim(), compressed, () =&gt; setStep(&quot;reading&quot;)))</code></pre>
+      </details>
+    </li>
+    <li class="card">
+      <h3>The route reads and saves the menu</h3>
+      <p class="anchor"><code>backend/app/routes/restaurants.py</code>, <code>create_restaurant</code>; then <code>backend/app/extraction.py</code>, <code>extract_dishes</code></p>
+      <p>The route checks the name and the photo count, hands the photo bytes to <code>extract_dishes</code>, then builds the document with a unique slug and code (<code>backend/app/codes.py</code>) and inserts it. <code>extract_dishes</code> sends the images and the <code>INSTRUCTION</code> prompt to Claude with a structured output schema, and returns an empty list on any failure so the manager can still add dishes by hand.</p>
+      <details>
+        <summary>Show the snippet</summary>
+<pre><code># Photos stay in memory for the extraction only; they are never stored.
+extracted = extraction.extract_dishes([image.file.read() for image in images])
+...
+restaurants.insert_one(doc)
+return to_private(doc, extraction_empty=not doc[&quot;dishes&quot;])</code></pre>
+      </details>
+    </li>
+    <li class="card">
+      <h3>The Menu screen shows the result</h3>
+      <p class="anchor"><code>frontend/src/pages/HomePage.tsx</code>, search <code>justCreated</code>; then <code>frontend/src/components/MenuEditor.tsx</code>, search <code>Menu ready</code></p>
+      <p><code>HomePage</code> swaps the form for <code>MenuEditor</code> inside the home panel. <code>MenuEditor</code> shows the name, the apricot badge (only when <code>justCreated</code>), one <code>DishRow</code> per dish, and the <code>QrPanel</code> with the code and the QR code built from <code>window.location.origin</code> plus the slug.</p>
+    </li>
+  </ol>
+
+  <h2>To change this, start here</h2>
+  <table>
+    <thead><tr><th>You want to change</th><th>Start in</th></tr></thead>
+    <tbody>
+      <tr><td>Colors, fonts, radius, the whole look</td><td><code>frontend/src/styles/theme.css</code> (tokens only, no hardcoded colors elsewhere)</td></tr>
+      <tr><td>What Claude reads, how prices are interpreted</td><td><code>INSTRUCTION</code> in <code>backend/app/extraction.py</code></td></tr>
+      <tr><td>The extraction model</td><td><code>EXTRACTION_MODEL</code> in <code>backend/app/config.py</code></td></tr>
+      <tr><td>Max photos per upload, timeouts</td><td><code>backend/app/config.py</code></td></tr>
+      <tr><td>The processing step labels</td><td><code>frontend/src/components/ProcessingSteps.tsx</code></td></tr>
+      <tr><td>Editing, adding, deleting, toggling a dish</td><td><code>frontend/src/components/DishRow.tsx</code> and <code>backend/app/routes/manage.py</code></td></tr>
+      <tr><td>What a customer sees after scanning</td><td><code>frontend/src/pages/CustomerMenuPage.tsx</code> and <code>backend/app/routes/menus.py</code></td></tr>
+      <tr><td>The code format and slugs</td><td><code>backend/app/codes.py</code></td></tr>
+      <tr><td>AWS resources</td><td><code>template.yaml</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>A practice to reuse</h2>
+  <div class="card">
+    <h3>Set the visual defaults before any screen, then check the UI with your eyes</h3>
+    <p><strong>The question:</strong> does a generic, "AI-made" interface come from vague instructions or from the agent? (<code>devpost/spec.md &gt; Decisions and Open Issues</code>)</p>
+    <p><strong>The decision:</strong> <code>frontend/src/styles/theme.css</code> was written before the first screen, with the palette, fonts, radius, usage rules (apricot only for "Menu ready") and a list of things to avoid (<code>devpost/spec.md &gt; Look and Feel &gt; Hard rules for the build agent</code>).</p>
+    <p><strong>The evidence:</strong> <code>shadcn init</code> installed Geist, a neutral grey theme and a dark mode by default, all of which had to be replaced. Later, the TypeScript build passed every time, while desktop and mobile screenshots caught a stretched QR code, a delete button in the wrong color and an unreadable tab on hover.</p>
+    <p><strong>On the next project:</strong> write the design tokens and the "avoid" list first, give the agent a concrete reference and say what to keep and change, and make visual checks (screenshots at phone and desktop widths) part of the verification of every UI step, not just the build.</p>
+  </div>
+
+  <h2>Run it again</h2>
+  <div class="card">
+    <p>Requires Node 20+, Python 3.12, a MongoDB Atlas cluster and an Anthropic API key. Copy <code>backend/.env.example</code> to <code>backend/.env</code> and fill it in.</p>
+<pre><code># Backend
+cd backend
+pip install -r requirements.txt -r requirements-dev.txt
+uvicorn app.main:app --reload --port 8000
+
+# Frontend (second terminal)
+cd frontend
+npm install
+npm run dev -- --host
+
+# Tests
+cd backend &amp;&amp; pytest
+cd frontend &amp;&amp; npm run build</code></pre>
+    <p>Open <code>http://localhost:5173</code>, or the LAN address Vite prints to scan the QR code with a phone. Deployment steps are in <code>README.md</code> and <code>devpost/spec.md &gt; Where It Runs and How Someone Tries It</code>.</p>
+  </div>
+</main>
+</body>
+</html>

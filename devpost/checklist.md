@@ -52,23 +52,24 @@ Build mode: fast
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored: after slice 1 (real photo extraction quality and the look of the Home and Menu screens, while feedback can still shape the rest of the UI). Done across slices 1 to 3: the learner tried creation, lookup by code, editing and the customer link; her feedback led to the in-panel menu, the large photo preview and the copy button. Phone QR scan is left for the deployed site.
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Final kick-the-tires exploration and feedback completed: the learner explored the deployed CloudFront site on desktop and on her phone outside her Wi-Fi, ran the full journey and confirmed the phone QR scan works. No changes requested.
 
 ## Final Review
 
-- [ ] Final review complete: feedback resolved and learner confirms ready to ship
+- [x] Final review complete: feedback resolved and learner confirms ready to ship
+  Agent checks on 2026-10-26: `pytest` 25 passed, `npm run build` passes, deployed site serves the app on `/` and `/<slug>` and returns 404 JSON for an unknown slug and a wrong code. Learner feedback: "c'est fait et validé", no revisions needed.
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete: guided route, focused alternative, prior practice connected, or brief recap
+- [x] Learning activity complete: guided route, focused alternative, prior practice connected, or brief recap
 - [ ] Optional edit and transfer reflection addressed: offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence:
-Route and stops:
-Edit outcome:
-Reflection:
-Activity mode:
+Activity and evidence: the spec's open question ("Is AI slop my instructions or the agent?") was investigated during the build, so it was connected rather than repeated. Decision: `theme.css` and the avoid list before any screen. Evidence: `shadcn init` defaults (Geist, neutral grey, dark mode) had to be replaced; screenshots caught the stretched QR code, the wrong delete button color and the unreadable tab on hover while the TypeScript build passed. Takeaway recorded in the map under "A practice to reuse".
+Route and stops: reference route only, not toured: NewRestaurantForm `submit` and `createRestaurant`, then `create_restaurant` and `extract_dishes`, then `HomePage` and `MenuEditor`.
+Edit outcome: not applicable (no tour, no edit).
+Reflection: offered.
+Activity mode: prior practice connected. Map at `devpost/app-map.html`, snapshot of `e69eb9a`, checked at desktop and 375 px width.
 
 ## Revisions
 
