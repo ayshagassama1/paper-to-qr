@@ -62,13 +62,13 @@ Build mode: fast
 ## Code Tour and App Map
 
 - [x] Learning activity complete: guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed: offered/declined/already covered/not applicable as appropriate
+- [x] Optional edit and transfer reflection addressed: offered/declined/already covered/not applicable as appropriate
 - [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
 Activity and evidence: the spec's open question ("Is AI slop my instructions or the agent?") was investigated during the build, so it was connected rather than repeated. Decision: `theme.css` and the avoid list before any screen. Evidence: `shadcn init` defaults (Geist, neutral grey, dark mode) had to be replaced; screenshots caught the stretched QR code, the wrong delete button color and the unreadable tab on hover while the TypeScript build passed. Takeaway recorded in the map under "A practice to reuse".
 Route and stops: reference route only, not toured: NewRestaurantForm `submit` and `createRestaurant`, then `create_restaurant` and `extract_dishes`, then `HomePage` and `MenuEditor`.
 Edit outcome: not applicable (no tour, no edit).
-Reflection: offered.
+Reflection: offered and answered; kept in the ignored learner profile.
 Activity mode: prior practice connected. Map at `devpost/app-map.html`, snapshot of `e69eb9a`, checked at desktop and 375 px width.
 
 ## Revisions
