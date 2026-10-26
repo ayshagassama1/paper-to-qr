@@ -91,15 +91,26 @@ On their phone, the customer lands on `/chez-marcel` and sees the restaurant nam
 
 ## Architecture
 
-```
-Browser (React)
-   │
-   ▼
-CloudFront ──── /*      ──► S3 private bucket (built React app)
-          └──── /api/*  ──► HTTP API ──► Lambda (FastAPI + Mangum) ──► Claude Haiku 5.5
-                                                     │
-                                                     ▼
-                                              MongoDB Atlas
+```mermaid
+flowchart LR
+    browser["Browser<br/>React app"]
+
+    subgraph aws["AWS"]
+        cf["CloudFront"]
+        s3["S3 private bucket<br/>built React app"]
+        api["API Gateway<br/>HTTP API"]
+        lambda["Lambda<br/>FastAPI + Mangum"]
+    end
+
+    claude["Claude Haiku 5.5<br/>reads the menu photos"]
+    mongo[("MongoDB Atlas<br/>restaurants")]
+
+    browser --> cf
+    cf -->|"/*"| s3
+    cf -->|"/api/*"| api
+    api --> lambda
+    lambda --> claude
+    lambda --> mongo
 ```
 
 - **Frontend** ([`frontend/`](frontend/)): React 19, Vite, TypeScript, Tailwind CSS 4 and shadcn/ui restyled with the project theme ([`frontend/src/styles/theme.css`](frontend/src/styles/theme.css)). Two routes: `/` (home and Menu screen) and `/:slug` (customer page). QR codes are drawn with `qrcode.react`.
